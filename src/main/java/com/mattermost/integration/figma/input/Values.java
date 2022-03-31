@@ -13,4 +13,6 @@ public class Values{
     private String code;
     @JsonProperty("state")
     private String state;
+    @JsonProperty("team_id")
+    private String teamId;
 }

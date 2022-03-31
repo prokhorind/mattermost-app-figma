@@ -50,6 +50,29 @@
                                         }
                                     ]
                                 }
+                            },
+                            {
+                                "app_id": "spring-boot-example",
+                                "location": "fileNotification",
+                                "label": "fileNotification",
+                                "form": {
+                                    "title": "Sends notidication when figma file was commented",
+                                    "icon": "icon.png",
+                                    "submit": {
+                                        "path": "/webhook/subscribe/fileComment",
+                                        "expand": {
+                                            "acting_user_access_token": "all"
+                                        }
+                                    },
+                                    "fields": [
+                                        {
+                                            "name": "team_id",
+                                            "type": "text",
+                                            "is_required": true,
+                                            "label": "team_id"
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }

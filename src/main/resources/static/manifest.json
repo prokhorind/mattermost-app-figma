@@ -36,6 +36,6 @@
     }
   },
 
-  "http":{"root_url":"http://localhost:8080"},
+  "http":{"root_url":"https://1877-213-109-232-43.ngrok.io"},
   "assets": []
 }
