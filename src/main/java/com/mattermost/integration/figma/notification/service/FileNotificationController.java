@@ -1,6 +1,7 @@
 package com.mattermost.integration.figma.notification.service;
 
 import com.mattermost.integration.figma.input.oauth.InputPayload;
+import com.mattermost.integration.figma.provider.UserProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ public class FileNotificationController {
     public String subscribeToFileComment(@RequestBody InputPayload request) {
         log.info("Subscription to file comment from user with id: " + request.getContext().getUserAgent() + " has come");
         log.debug("Subscription to file comment request: " + request);
+        UserProvider.payload = request;
         if (Objects.nonNull(fileNotificationService.subscribeToFileNotification(request.getValues().getTeamId(),
                 request.getContext().getApp().getWebhookSecret()))) {
             return "{\"text\" : \"Success\"}";

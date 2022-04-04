@@ -27,6 +27,7 @@ public class WebhookController {
     public void comment(@RequestBody FileCommentWebhookResponse response) {
         if (Objects.nonNull(response) && !response.getEventType().equals("PING")) {
             log.debug("Received webhook from figma: " + response);
+            fileNotificationService.sendFileNotificationMessageToMM(response);
             fileNotificationService.deleteWebhook(response.getWebhookId());
         }
     }

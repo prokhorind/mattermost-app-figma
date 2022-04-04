@@ -1,8 +1,12 @@
 package com.mattermost.integration.figma.notification.service;
 
+import com.mattermost.integration.figma.api.mm.dm.dto.DMMessagePayload;
+import com.mattermost.integration.figma.api.mm.dm.service.DMMessageService;
 import com.mattermost.integration.figma.input.file.notification.FileCommentNotificationRequest;
+import com.mattermost.integration.figma.input.file.notification.FileCommentWebhookResponse;
 import com.mattermost.integration.figma.provider.FigmaTokenProvider;
 import com.mattermost.integration.figma.provider.NgrokLinkProvider;
+import com.mattermost.integration.figma.provider.UserProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,9 +28,11 @@ public class FileNotificationService {
     private static final String FILE_COMMENT_URL = "/webhook/comment";
 
     private final RestTemplate restTemplate;
+    private final DMMessageService messageService;
 
-    public FileNotificationService(RestTemplate restTemplate) {
+    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService) {
         this.restTemplate = restTemplate;
+        this.messageService = messageService;
     }
 
     public String subscribeToFileNotification(String teamId, String webhookSecret) {
@@ -58,5 +64,22 @@ public class FileNotificationService {
         String url = BASE_WEBHOOK_URL.concat("/").concat(webhookId);
         restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
         log.info("Successfully deleted webhook with id: " + webhookId);
+    }
+
+    public void sendFileNotificationMessageToMM(FileCommentWebhookResponse fileCommentWebhookResponse) {
+        String channelId = messageService.createDMChannel(UserProvider.payload);
+        DMMessagePayload message = new DMMessagePayload();
+        message.setChannelId(channelId);
+        message.setMessage(createFileNotificationMessage(fileCommentWebhookResponse));
+        message.setToken(UserProvider.payload.getContext().getBotAccessToken());
+        message.setMmSiteUrlBase(UserProvider.payload.getContext().getMattermostSiteUrl());
+        messageService.sendDMMessage(message);
+    }
+
+    private String createFileNotificationMessage(FileCommentWebhookResponse fileCommentWebhookResponse) {
+        return String.format("User %s posted a comment %s on a file %s",
+                fileCommentWebhookResponse.getTriggeredBy().getHandle(),
+                fileCommentWebhookResponse.getComment()[fileCommentWebhookResponse.getComment().length - 1].getText(),
+                fileCommentWebhookResponse.getFileName());
     }
 }
