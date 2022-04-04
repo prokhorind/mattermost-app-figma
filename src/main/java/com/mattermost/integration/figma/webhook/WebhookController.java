@@ -4,13 +4,17 @@ package com.mattermost.integration.figma.webhook;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
 import com.mattermost.integration.figma.input.file.notification.FileCommentWebhookResponse;
 import com.mattermost.integration.figma.notification.service.FileNotificationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/webhook")
+@Slf4j
 public class WebhookController {
 
     private final FileNotificationService fileNotificationService;
@@ -21,16 +25,9 @@ public class WebhookController {
 
     @PostMapping("/comment")
     public void comment(@RequestBody FileCommentWebhookResponse response) {
-        System.out.println(response);
-        if (!response.getEventType().equals("PING")) {
+        if (Objects.nonNull(response) && !response.getEventType().equals("PING")) {
+            log.debug("Received webhook from figma: " + response);
             fileNotificationService.deleteWebhook(response.getWebhookId());
         }
-    }
-
-    @PostMapping("/subscribe/fileComment")
-    public String subscribeToFileComment(@RequestBody InputPayload request) {
-        System.out.println(request);
-        return fileNotificationService.subscribeToFileNotification(request.getValues().getTeamId(),
-                request.getContext().getApp().getWebhookSecret());
     }
 }

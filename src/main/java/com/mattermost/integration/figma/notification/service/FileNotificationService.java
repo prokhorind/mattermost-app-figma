@@ -3,6 +3,7 @@ package com.mattermost.integration.figma.notification.service;
 import com.mattermost.integration.figma.input.file.notification.FileCommentNotificationRequest;
 import com.mattermost.integration.figma.provider.FigmaTokenProvider;
 import com.mattermost.integration.figma.provider.NgrokLinkProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
 public class FileNotificationService {
     private static final String BASE_WEBHOOK_URL = "https://api.figma.com/v2/webhooks";
     private static final String PASSCODE = "Mattermost";
@@ -32,6 +34,7 @@ public class FileNotificationService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", String.format("Bearer %s", FigmaTokenProvider.token.getAccessToken()));
+
             FileCommentNotificationRequest fileCommentNotificationRequest = new FileCommentNotificationRequest();
             fileCommentNotificationRequest.setEventType(FILE_COMMENT_EVENT_TYPE);
             fileCommentNotificationRequest.setTeamId(teamId);
@@ -39,12 +42,13 @@ public class FileNotificationService {
             //For production Mattermost link
             //fileCommentNotificationRequest.setEndpoint(String.format(REDIRECT_URL, FILE_COMMENT_URL, webhookSecret));
             fileCommentNotificationRequest.setEndpoint(NgrokLinkProvider.REDIRECT_URL.concat(FILE_COMMENT_URL));
-            System.out.println(fileCommentNotificationRequest);
+            log.debug("File notification request : " + fileCommentNotificationRequest);
+
             HttpEntity<FileCommentNotificationRequest> request = new HttpEntity<>(fileCommentNotificationRequest, headers);
-            restTemplate.postForEntity(BASE_WEBHOOK_URL, request, String.class);
-            return "{\"text\" : \"Success\"}";
+            log.info("Sending comment request for team with id: " + teamId);
+            return restTemplate.postForEntity(BASE_WEBHOOK_URL, request, String.class).toString();
         }
-        return "{\"text\" : \"There is no such team id\"}";
+        return null;
     }
 
     public void deleteWebhook(String webhookId) {
@@ -53,6 +57,6 @@ public class FileNotificationService {
         HttpEntity<Object> request = new HttpEntity<>(headers);
         String url = BASE_WEBHOOK_URL.concat("/").concat(webhookId);
         restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
-        System.out.println("Successfully deleted webhook with id: " + webhookId);
+        log.info("Successfully deleted webhook with id: " + webhookId);
     }
 }

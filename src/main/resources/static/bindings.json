@@ -60,7 +60,7 @@
                                     "title": "Sends notidication when figma file was commented",
                                     "icon": "icon.png",
                                     "submit": {
-                                        "path": "/webhook/subscribe/fileComment",
+                                        "path": "/subscribe",
                                         "expand": {
                                             "acting_user_access_token": "all",
                                             "app": "all"

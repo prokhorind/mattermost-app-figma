@@ -3,11 +3,7 @@ package com.mattermost.integration.figma.input.file.notification;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Data
 public class FileCommentNotificationRequest {
     @JsonProperty("event_type")
     private String eventType;

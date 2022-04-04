@@ -2,11 +2,7 @@ package com.mattermost.integration.figma.input.file.notification;
 
 import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Data
 public class User {
     private String id;
     private String handle;
