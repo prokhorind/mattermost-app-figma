@@ -1,6 +1,6 @@
 package com.mattermost.integration.figma.security;
 
-import com.mattermost.integration.figma.input.InputPayload;
+import com.mattermost.integration.figma.input.oauth.InputPayload;
 import com.mattermost.integration.figma.security.dto.FigmaTokenDTO;
 import com.mattermost.integration.figma.security.service.OAuthService;
 import org.springframework.beans.factory.annotation.Autowired;

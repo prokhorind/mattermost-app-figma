@@ -62,7 +62,8 @@
                                     "submit": {
                                         "path": "/webhook/subscribe/fileComment",
                                         "expand": {
-                                            "acting_user_access_token": "all"
+                                            "acting_user_access_token": "all",
+                                            "app": "all"
                                         }
                                     },
                                     "fields": [

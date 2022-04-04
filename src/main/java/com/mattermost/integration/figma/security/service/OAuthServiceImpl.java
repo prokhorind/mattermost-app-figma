@@ -1,6 +1,6 @@
 package com.mattermost.integration.figma.security.service;
 
-import com.mattermost.integration.figma.input.InputPayload;
+import com.mattermost.integration.figma.input.oauth.InputPayload;
 import com.mattermost.integration.figma.provider.FigmaTokenProvider;
 import com.mattermost.integration.figma.security.dto.FigmaTokenDTO;
 import com.mattermost.integration.figma.security.dto.OAuthCredsDTO;
