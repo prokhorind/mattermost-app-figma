@@ -43,7 +43,7 @@
     }
   },
   "http": {
-    "root_url": "https://a694-213-109-232-169.ngrok.io"
+    "root_url": "http://localhost:8080"
   },
   "assets": []
 }
