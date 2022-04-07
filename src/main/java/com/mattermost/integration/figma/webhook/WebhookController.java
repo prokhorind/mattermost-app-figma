@@ -28,10 +28,6 @@ public class WebhookController {
         if (Objects.nonNull(response) && !response.values.data.getEventType().equals("PING")) {
             log.debug("Received webhook from figma: " + response);
             fileNotificationService.sendFileNotificationMessageToMM(response);
-//            fileNotificationService.deleteWebhook(response.values.data.getWebhookId(),
-//                    response.context.getOauth2().getClientId(),
-//                    response.context.getMattermostSiteUrl(),
-//                    response.getContext().getBotAccessToken());
         }
     }
 }

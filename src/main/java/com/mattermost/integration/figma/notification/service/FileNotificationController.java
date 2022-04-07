@@ -27,11 +27,7 @@ public class FileNotificationController {
         log.debug("Subscription to file comment request: " + request);
 
         if (Objects.nonNull(fileNotificationService.subscribeToFileNotification(request))) {
-            try {
-                fileNotificationService.saveUserData(request);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
+            fileNotificationService.saveUserData(request);
             return "{\"text\" : \"Success\"}";
         }
         return "{\"text\" : \"There is no such team id\"}";

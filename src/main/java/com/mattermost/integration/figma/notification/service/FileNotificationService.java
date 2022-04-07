@@ -1,5 +1,7 @@
 package com.mattermost.integration.figma.notification.service;
 
+import com.mattermost.integration.figma.api.figma.webhook.dto.TeamWebhookInfoResponseDto;
+import com.mattermost.integration.figma.api.figma.webhook.service.FigmaWebhookService;
 import com.mattermost.integration.figma.api.mm.dm.dto.DMChannelPayload;
 import com.mattermost.integration.figma.api.mm.dm.dto.DMMessagePayload;
 import com.mattermost.integration.figma.api.mm.dm.service.DMMessageService;
@@ -10,21 +12,19 @@ import com.mattermost.integration.figma.input.file.notification.FileCommentWebho
 import com.mattermost.integration.figma.input.oauth.ActingUser;
 import com.mattermost.integration.figma.input.oauth.Context;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
-import com.mattermost.integration.figma.security.dto.FigmaTokenDTO;
 import com.mattermost.integration.figma.security.dto.UserDataDto;
 import com.mattermost.integration.figma.utils.json.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -33,28 +33,33 @@ public class FileNotificationService {
     private static final String PASSCODE = "Mattermost";
     private static final String FILE_COMMENT_EVENT_TYPE = "FILE_COMMENT";
     //Production Mattermost link
-    private static final String REDIRECT_URL = "https://d557-213-109-232-180.ngrok.io/plugins/com.mattermost.apps/apps/spring-boot-example%s?secret=%s";
+    private static final String REDIRECT_URL = "http://localhost:8065/plugins/com.mattermost.apps/apps/spring-boot-example%s?secret=%s";
     private static final String FILE_COMMENT_URL = "/webhook/comment";
 
     private final RestTemplate restTemplate;
     private final DMMessageService messageService;
     private final KVService kvService;
     private final JsonUtils jsonUtils;
+    private final FigmaWebhookService figmaWebhookService;
 
-    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils) {
+    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils, FigmaWebhookService figmaWebhookService) {
         this.restTemplate = restTemplate;
         this.messageService = messageService;
         this.kvService = kvService;
         this.jsonUtils = jsonUtils;
+        this.figmaWebhookService = figmaWebhookService;
     }
 
     public String subscribeToFileNotification(InputPayload inputPayload) {
         String teamId = inputPayload.getValues().getTeamId();
-        if (teamId != null && !teamId.isEmpty() && !teamId.isBlank() && !checkIfWebhookIsPresent(inputPayload)) {
-            HttpEntity<FileCommentNotificationRequest> request = createFileCommentNotificationRequest(inputPayload);
-            log.debug("File notification request : " + request);
-            log.info("Sending comment request for team with id: " + teamId);
-            return restTemplate.postForEntity(BASE_WEBHOOK_URL, request, String.class).toString();
+        if (teamId != null && !teamId.isEmpty() && !teamId.isBlank()) {
+            if (checkIfTeamWebhookIsPresent(teamId, inputPayload.getContext().getOauth2().getUser().getAccessToken())) {
+                HttpEntity<FileCommentNotificationRequest> request = createFileCommentNotificationRequest(inputPayload);
+                log.debug("File notification request : " + request);
+                log.info("Sending comment request for team with id: " + teamId);
+                return restTemplate.postForEntity(BASE_WEBHOOK_URL, request, String.class).toString();
+            }
+            return "Success";
         }
         return null;
     }
@@ -96,15 +101,10 @@ public class FileNotificationService {
                 context.getMattermostSiteUrl(), figmaWebhookResponse));
     }
 
-    public void deleteWebhook(String webhookId, String clientId, String mattermostUrl, String botAccessToken) {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        String figmaTokenObj = kvService.get(clientId, mattermostUrl, botAccessToken);
-        FigmaTokenDTO figmaTokenDTO = (FigmaTokenDTO) jsonUtils.convertStringToObject(figmaTokenObj, FigmaTokenDTO.class).get();
-        headers.add("Authorization", String.format("Bearer %s", figmaTokenDTO.getAccessToken()));
-        HttpEntity<Object> request = new HttpEntity<>(headers);
-        String url = BASE_WEBHOOK_URL.concat("/").concat(webhookId);
-        restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
-        log.info("Successfully deleted webhook with id: " + webhookId);
+    private boolean checkIfTeamWebhookIsPresent(String teamId, String figmaToken) {
+        TeamWebhookInfoResponseDto teamWebhooks = figmaWebhookService.getTeamWebhooks(teamId, figmaToken);
+        teamWebhooks.getWebhooks().forEach(webhook -> figmaWebhookService.deleteWebhook(webhook.getId(), figmaToken));
+        return teamWebhooks.getWebhooks().stream().anyMatch(webhook -> webhook.getEventType().equals(FILE_COMMENT_EVENT_TYPE));
     }
 
     private DMChannelPayload createDMChannelPayload(Context context) {
@@ -125,7 +125,7 @@ public class FileNotificationService {
         return message;
     }
 
-    private boolean checkIfWebhookIsPresent(InputPayload inputPayload) {
+    private boolean checkIfUserTeamIsPresent(InputPayload inputPayload) {
         String userId = inputPayload.getContext().getOauth2().getUser().getUserId();
         String mmSiteUrl = inputPayload.getContext().getMattermostSiteUrl();
         String botAccessToken = inputPayload.getContext().getBotAccessToken();
