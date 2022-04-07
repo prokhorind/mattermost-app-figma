@@ -1,7 +1,7 @@
 package com.mattermost.integration.figma.security.service;
 
+import com.mattermost.integration.figma.api.mm.kv.KVService;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
-import com.mattermost.integration.figma.provider.FigmaTokenProvider;
 import com.mattermost.integration.figma.security.dto.FigmaTokenDTO;
 import com.mattermost.integration.figma.security.dto.OAuthCredsDTO;
 import com.mattermost.integration.figma.utils.json.JsonUtils;
@@ -28,6 +28,8 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private KVService kvService;
 
     @Override
     public String generateUrl(InputPayload payload) {
@@ -74,7 +76,7 @@ public class OAuthServiceImpl implements OAuthService {
         ResponseEntity<String> resp = restTemplate.postForEntity(url, null, String.class);
         FigmaTokenDTO token = (FigmaTokenDTO) jsonUtils.convertStringToObject(resp.getBody(), FigmaTokenDTO.class).get();
         log.info("Successfully received token");
-        FigmaTokenProvider.token = token;
+        kvService.put(clientId, token, payload.getContext().getMattermostSiteUrl(), payload.getContext().getBotAccessToken());
         return token;
     }
 
