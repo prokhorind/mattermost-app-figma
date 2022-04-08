@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Mention {
-    public String handle;
-    public String id;
+    private String handle;
+    private String id;
 }

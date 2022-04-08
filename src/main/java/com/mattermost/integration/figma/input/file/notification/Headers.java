@@ -6,23 +6,23 @@ import lombok.Data;
 @Data
 public class Headers {
     @JsonProperty("Accept-Encoding")
-    public String acceptEncoding;
+    private String acceptEncoding;
     @JsonProperty("Content-Length")
-    public String contentLength;
+    private String contentLength;
     @JsonProperty("Content-Type")
-    public String contentType;
+    private String contentType;
     @JsonProperty("Mattermost-Session-Id")
-    public String mattermostSessionId;
+    private String mattermostSessionId;
     @JsonProperty("User-Agent")
-    public String userAgent;
+    private String userAgent;
     @JsonProperty("X-Datadog-Parent-Id")
-    public String xDatadogParentId;
+    private String xDatadogParentId;
     @JsonProperty("X-Datadog-Sampling-Priority")
-    public String xDatadogSamplingPriority;
+    private String xDatadogSamplingPriority;
     @JsonProperty("X-Datadog-Trace-Id")
-    public String xDatadogTraceId;
+    private String xDatadogTraceId;
     @JsonProperty("X-Forwarded-For")
-    public String xForwardedFor;
+    private String xForwardedFor;
     @JsonProperty("X-Forwarded-Proto")
-    public String xForwardedProto;
+    private String xForwardedProto;
 }

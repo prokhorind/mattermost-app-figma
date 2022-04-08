@@ -1,14 +1,14 @@
 package com.mattermost.integration.figma.input.file.notification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.Data;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class FigmaWebhookResponse {
     @JsonProperty("comment")
-    private Comment[] comment;
+    private List<Comment> comment;
     @JsonProperty("comment_id")
     private String commentId;
     @JsonProperty("created_at")
@@ -20,15 +20,15 @@ public class FigmaWebhookResponse {
     @JsonProperty("file_name")
     private String fileName;
     @JsonProperty("mentions")
-    private ArrayList<Mention> mentions;
+    private List<Mention> mentions;
     @JsonProperty("order_id")
     private String orderId;
     @JsonProperty("parent_id")
     private String parentId;
     @JsonProperty("passcode")
     private String passcode;
-    @JsonProperty("protocolVersion")
-    private String protocol_version;
+    @JsonProperty("protocol_version")
+    private String protocolVersion;
     @JsonProperty("resolved_at")
     private String resolvedAt;
     @JsonProperty("retries")

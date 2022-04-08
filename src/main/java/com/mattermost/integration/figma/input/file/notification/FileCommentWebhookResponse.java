@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class FileCommentWebhookResponse {
-    public String path;
-    public FigmaValues values;
-    public Context context;
+    private String path;
+    private FigmaValues values;
+    private Context context;
 }

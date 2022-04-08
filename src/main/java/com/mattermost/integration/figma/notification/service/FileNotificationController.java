@@ -30,6 +30,6 @@ public class FileNotificationController {
             fileNotificationService.saveUserData(request);
             return "{\"text\" : \"Success\"}";
         }
-        return "{\"text\" : \"There is no such team id\"}";
+        return "{\"text\" : \"You are successfully subscribed to an existing webhook\"}";
     }
 }

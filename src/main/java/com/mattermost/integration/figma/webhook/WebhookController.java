@@ -23,9 +23,9 @@ public class WebhookController {
     }
 
     @PostMapping("/comment")
-    public void comment(@RequestBody FileCommentWebhookResponse response) throws Throwable {
+    public void comment(@RequestBody FileCommentWebhookResponse response) {
         System.out.println(response);
-        if (Objects.nonNull(response) && !response.values.data.getEventType().equals("PING")) {
+        if (Objects.nonNull(response) && !response.getValues().getData().getEventType().equals("PING")) {
             log.debug("Received webhook from figma: " + response);
             fileNotificationService.sendFileNotificationMessageToMM(response);
         }

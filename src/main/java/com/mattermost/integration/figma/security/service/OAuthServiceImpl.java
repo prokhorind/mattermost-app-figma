@@ -76,7 +76,6 @@ public class OAuthServiceImpl implements OAuthService {
         ResponseEntity<String> resp = restTemplate.postForEntity(url, null, String.class);
         FigmaTokenDTO token = (FigmaTokenDTO) jsonUtils.convertStringToObject(resp.getBody(), FigmaTokenDTO.class).get();
         log.info("Successfully received token");
-        kvService.put(clientId, token, payload.getContext().getMattermostSiteUrl(), payload.getContext().getBotAccessToken());
         return token;
     }
 
