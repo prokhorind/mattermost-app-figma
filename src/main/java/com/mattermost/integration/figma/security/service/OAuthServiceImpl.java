@@ -27,9 +27,6 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    private KVService kvService;
-
     @Override
     public String generateUrl(InputPayload payload) {
         String clientId = payload.getContext().getOauth2().getClientId();
