@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,8 +43,7 @@ public class FileNotificationService {
     private final OAuthService oAuthService;
     private final MMUserService mmUserService;
 
-    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils, FigmaWebhookService figmaWebhookService, OAuthService oAuthService) {
-    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils, FigmaWebhookService figmaWebhookService, MMUserService mmUserService) {
+    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils, FigmaWebhookService figmaWebhookService, OAuthService oAuthService, MMUserService mmUserService) {
         this.restTemplate = restTemplate;
         this.messageService = messageService;
         this.kvService = kvService;
