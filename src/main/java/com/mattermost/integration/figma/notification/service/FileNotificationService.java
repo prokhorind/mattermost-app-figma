@@ -6,7 +6,9 @@ import com.mattermost.integration.figma.api.mm.dm.dto.DMChannelPayload;
 import com.mattermost.integration.figma.api.mm.dm.dto.DMMessagePayload;
 import com.mattermost.integration.figma.api.mm.dm.service.DMMessageService;
 import com.mattermost.integration.figma.api.mm.kv.KVService;
+import com.mattermost.integration.figma.api.mm.user.MMUserService;
 import com.mattermost.integration.figma.input.file.notification.*;
+import com.mattermost.integration.figma.input.mm.MMUser;
 import com.mattermost.integration.figma.input.oauth.ActingUser;
 import com.mattermost.integration.figma.input.oauth.Context;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
@@ -19,7 +21,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,13 +41,15 @@ public class FileNotificationService {
     private final KVService kvService;
     private final JsonUtils jsonUtils;
     private final FigmaWebhookService figmaWebhookService;
+    private final MMUserService mmUserService;
 
-    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils, FigmaWebhookService figmaWebhookService) {
+    public FileNotificationService(RestTemplate restTemplate, DMMessageService messageService, KVService kvService, JsonUtils jsonUtils, FigmaWebhookService figmaWebhookService, MMUserService mmUserService) {
         this.restTemplate = restTemplate;
         this.messageService = messageService;
         this.kvService = kvService;
         this.jsonUtils = jsonUtils;
         this.figmaWebhookService = figmaWebhookService;
+        this.mmUserService = mmUserService;
     }
 
     public String subscribeToFileNotification(InputPayload inputPayload) {
@@ -113,7 +121,7 @@ public class FileNotificationService {
                                                     String mmSiteUrl, FigmaWebhookResponse figmaWebhookResponse) {
         DMMessagePayload message = new DMMessagePayload();
         message.setChannelId(channelId);
-        message.setMessage(createFileNotificationMessage(figmaWebhookResponse));
+        message.setMessage(createFileNotificationMessage(figmaWebhookResponse, mmSiteUrl, botAccessToken));
         message.setToken(botAccessToken);
         message.setMmSiteUrlBase(mmSiteUrl);
         return message;
@@ -124,25 +132,39 @@ public class FileNotificationService {
                 botAccessToken), UserDataDto.class).get();
     }
 
-    private String createFileNotificationMessage(FigmaWebhookResponse figmaWebhookResponse) {
-        return String.format("User %s mentioned you in a comment %s in a file %s",
-                figmaWebhookResponse.getTriggeredBy().getHandle(),
-                prepareComment(figmaWebhookResponse.getComment(), figmaWebhookResponse.getMentions()),
-                figmaWebhookResponse.getFileName());
+    private String createFileNotificationMessage(FigmaWebhookResponse figmaWebhookResponse, String mmSiteUrl,
+                                                 String botToken) {
+        UserDataDto userDataDto = getCurrentUserData(figmaWebhookResponse.getTriggeredBy().getId(), mmSiteUrl, botToken);
+        List<MMUser> mmUsers = getMMUsersByIds(Collections.singletonList(userDataDto.getMmUserId()),
+                mmSiteUrl, botToken);
+        return String.format("%s posted a new comment in a file \"%s\":\n \"%s\" ",
+                "@".concat(mmUsers.get(0).getUsername()),
+                figmaWebhookResponse.getFileName(),
+                prepareComment(figmaWebhookResponse.getComment(), figmaWebhookResponse.getMentions(), mmSiteUrl, botToken));
     }
 
-    private String prepareComment(List<Comment> comments, List<Mention> mentions) {
+    private String prepareComment(List<Comment> comments, List<Mention> mentions, String mmSiteUrl,
+                                  String botToken) {
+        List<UserDataDto> userData = mentions.stream().map(mention ->
+                getCurrentUserData(mention.getId(), mmSiteUrl, botToken)).collect(Collectors.toList());
+        List<MMUser> mmUsers = getMMUsersByIds(userData.stream().map(UserDataDto::getMmUserId).collect(Collectors.toList()),
+                mmSiteUrl, botToken);
+
         StringBuilder stringBuilder = new StringBuilder();
         int mentionCounter = 0;
         for (Comment comment : comments) {
             if (Objects.nonNull(comment.getText())) {
                 stringBuilder.append(comment.getText());
             } else {
-                stringBuilder.append(mentions.get(mentionCounter++).getHandle());
+                stringBuilder.append("@").append(mmUsers.get(mentionCounter++).getUsername());
             }
         }
 
         return stringBuilder.toString();
+    }
+
+    private List<MMUser> getMMUsersByIds(List<String> ids, String mmSiteUrl, String botAccessToken) {
+        return mmUserService.getUsersById(ids, mmSiteUrl, botAccessToken);
     }
 
     private HttpEntity<FileCommentNotificationRequest> createFileCommentNotificationRequest(InputPayload inputPayload) {

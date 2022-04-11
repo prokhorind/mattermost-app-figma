@@ -1,6 +1,7 @@
 package com.mattermost.integration.figma.utils.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,15 @@ public class JsonUtils {
         try {
            return Optional.of(objectMapper.readValue(jsonString, type));
         } catch (JsonProcessingException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional convertStringToObject(String jsonString, TypeReference type) {
+        try {
+            return Optional.of(objectMapper.readValue(jsonString, type));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
             return Optional.empty();
         }
     }
