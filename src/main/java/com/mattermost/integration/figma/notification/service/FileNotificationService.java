@@ -148,12 +148,13 @@ public class FileNotificationService {
     private String createFileNotificationMessage(FigmaWebhookResponse figmaWebhookResponse, String mmSiteUrl,
                                                  String botToken) {
         UserDataDto userDataDto = getCurrentUserData(figmaWebhookResponse.getTriggeredBy().getId(), mmSiteUrl, botToken);
-        List<MMUser> mmUsers = getMMUsersByIds(Collections.singletonList(userDataDto.getMmUserId()),
-                mmSiteUrl, botToken);
-        return String.format("%s posted a new comment in a file \"%s\":\n \"%s\" ",
-                "@".concat(mmUsers.get(0).getUsername()),
-                figmaWebhookResponse.getFileName(),
+        MMUser mmUsers = mmUserService.getUserById(userDataDto.getMmUserId(), mmSiteUrl, botToken);
+        return buildComment(mmUsers.getUsername(), figmaWebhookResponse.getFileName(),
                 prepareComment(figmaWebhookResponse.getComment(), figmaWebhookResponse.getMentions(), mmSiteUrl, botToken));
+    }
+
+    private String buildComment(String author, String fileName, String comment) {
+        return String.format("@%s posted a new comment in a file \"%s\":\n \"%s\"", author, fileName, comment);
     }
 
     private String prepareComment(List<Comment> comments, List<Mention> mentions, String mmSiteUrl,

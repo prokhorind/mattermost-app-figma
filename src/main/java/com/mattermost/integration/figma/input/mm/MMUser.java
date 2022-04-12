@@ -14,15 +14,15 @@ public class MMUser {
     public Long deleteAt;
     public String username;
     @JsonProperty("auth_data")
-    public String auth_data;
+    public String authData;
     @JsonProperty("auth_service")
-    public String auth_service;
+    public String authService;
     public String email;
     public String nickname;
     @JsonProperty("first_name")
     public String firstName;
     @JsonProperty("last_name")
-    public String last_name;
+    public String lastName;
     public String position;
     public String roles;
     public String locale;

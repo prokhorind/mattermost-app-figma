@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface MMUserService {
     List<MMUser> getUsersById(List<String> ids, String mattermostSiteUrl, String token);
+    MMUser getUserById(String id, String mattermostSiteUrl, String token);
 }
