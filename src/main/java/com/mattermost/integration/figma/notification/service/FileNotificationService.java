@@ -7,7 +7,7 @@ import com.mattermost.integration.figma.api.mm.dm.dto.DMMessagePayload;
 import com.mattermost.integration.figma.api.mm.dm.service.DMMessageService;
 import com.mattermost.integration.figma.api.mm.kv.KVService;
 import com.mattermost.integration.figma.api.mm.user.MMUserService;
-import com.mattermost.integration.figma.input.file.notification.*;
+import com.mattermost.integration.figma.input.figma.notification.*;
 import com.mattermost.integration.figma.input.mm.MMUser;
 import com.mattermost.integration.figma.input.oauth.ActingUser;
 import com.mattermost.integration.figma.input.oauth.Context;
@@ -34,6 +34,8 @@ public class FileNotificationService {
     private static final String FILE_COMMENT_EVENT_TYPE = "FILE_COMMENT";
     private static final String REDIRECT_URL = "%s%s?secret=%s";
     private static final String FILE_COMMENT_URL = "/webhook/comment";
+    private static final String FILE_URL = "https://www.figma.com/file/%s";
+    private static final String UNTITLED = "Untitled";
 
     private final RestTemplate restTemplate;
     private final DMMessageService messageService;
@@ -119,6 +121,7 @@ public class FileNotificationService {
 
     private boolean hasFileCommentWebhook(String teamId, String figmaToken) {
         TeamWebhookInfoResponseDto teamWebhooks = figmaWebhookService.getTeamWebhooks(teamId, figmaToken);
+        teamWebhooks.getWebhooks().forEach(webhook -> figmaWebhookService.deleteWebhook(webhook.getId(), figmaToken));
         return teamWebhooks.getWebhooks().stream().anyMatch(webhook -> webhook.getEventType().equals(FILE_COMMENT_EVENT_TYPE));
     }
 
@@ -150,11 +153,16 @@ public class FileNotificationService {
         UserDataDto userDataDto = getCurrentUserData(figmaWebhookResponse.getTriggeredBy().getId(), mmSiteUrl, botToken);
         MMUser mmUsers = mmUserService.getUserById(userDataDto.getMmUserId(), mmSiteUrl, botToken);
         return buildComment(mmUsers.getUsername(), figmaWebhookResponse.getFileName(),
-                prepareComment(figmaWebhookResponse.getComment(), figmaWebhookResponse.getMentions(), mmSiteUrl, botToken));
+                prepareComment(figmaWebhookResponse.getComment(), figmaWebhookResponse.getMentions(), mmSiteUrl, botToken),
+                figmaWebhookResponse.getFileKey());
     }
 
-    private String buildComment(String author, String fileName, String comment) {
-        return String.format("@%s posted a new comment in a file \"%s\":\n \"%s\"", author, fileName, comment);
+    private String buildComment(String author, String fileName, String comment, String fileKey) {
+        if (fileName.isBlank()) {
+            fileName = UNTITLED;
+        }
+        return String.format("@%s commented on [%s](%s):\n \"%s\"", author,
+                fileName, String.format(FILE_URL, fileKey), comment);
     }
 
     private String prepareComment(List<Comment> comments, List<Mention> mentions, String mmSiteUrl,
