@@ -1,10 +1,12 @@
 package com.mattermost.integration.figma.input.figma.notification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class ClientMeta {
     @JsonProperty("node_id")
-    public String nodeId;
+    private String nodeId;
     @JsonProperty("node_offset")
-    public NodeOffset nodeOffset;
+    private NodeOffset nodeOffset;
 }

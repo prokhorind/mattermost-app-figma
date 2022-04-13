@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class CommentResponseDto {
-    private List<CommentDto> commentDtos;
+    private List<CommentDto> comments;
 }

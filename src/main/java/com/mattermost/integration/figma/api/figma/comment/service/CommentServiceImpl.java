@@ -29,7 +29,7 @@ public class CommentServiceImpl implements CommentService {
         HttpEntity<Object> request = new HttpEntity<>(headers);
 
         ResponseEntity<CommentResponseDto> resp = restTemplate.exchange(String.format(GET_COMMENTS_URL, fileKey), HttpMethod.GET, request, CommentResponseDto.class);
-        return Objects.requireNonNull(resp.getBody()).getCommentDtos();
+        return Objects.requireNonNull(resp.getBody()).getComments();
     }
 
     @Override

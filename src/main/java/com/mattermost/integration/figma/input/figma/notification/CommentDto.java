@@ -7,19 +7,19 @@ import java.util.Date;
 
 @Data
 public class CommentDto {
-    public String id;
+    private String id;
     @JsonProperty("file_key")
-    public String fileKey;
+    private String fileKey;
     @JsonProperty("parent_id")
-    public String parentId;
-    public User user;
+    private String parentId;
+    private User user;
     @JsonProperty("created_at")
-    public Date createdAt;
+    private Date createdAt;
     @JsonProperty("resolved_at")
-    public Object resolvedAt;
-    public String message;
+    private Object resolvedAt;
+    private String message;
     @JsonProperty("client_meta")
-    public ClientMeta clientMeta;
+    private ClientMeta clientMeta;
     @JsonProperty("order_id")
-    public String orderId;
+    private String orderId;
 }

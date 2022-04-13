@@ -6,5 +6,5 @@ import lombok.*;
 public class User {
     private String id;
     private String handle;
-    public String img_url;
+    private String img_url;
 }
