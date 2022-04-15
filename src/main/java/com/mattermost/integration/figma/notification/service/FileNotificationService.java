@@ -101,6 +101,10 @@ public class FileNotificationService {
 
         UserDataDto currentData = getCurrentUserData(userId, mmSiteUrl, botAccessToken);
         if (Objects.nonNull(currentData.getTeamIds()) && !currentData.getTeamIds().isEmpty()) {
+            currentData.setClientId(inputPayload.getContext().getOauth2().getClientId());
+            currentData.setClientSecret(inputPayload.getContext().getOauth2().getClientSecret());
+            currentData.setRefreshToken(inputPayload.getContext().getOauth2().getUser().getRefreshToken());
+            currentData.setMmUserId(inputPayload.getContext().getActingUser().getId());
             currentData.getTeamIds().add(teamId);
             kvService.put(userId, currentData, mmSiteUrl, botAccessToken);
         } else {
@@ -131,8 +135,11 @@ public class FileNotificationService {
 
     private String sendMessageToCommentAuthor(FigmaWebhookResponse figmaWebhookResponse, Context context) {
         String token = getToken(figmaWebhookResponse, context);
-
         CommentDto comment = commentService.getCommentById(figmaWebhookResponse.getParentId(), figmaWebhookResponse.getFileKey(), token).get();
+        if (figmaWebhookResponse.getTriggeredBy().getId().equals(comment.getUser().getId())) {
+            return "";
+        }
+
         UserDataDto currentUserData = getCurrentUserData(comment.getUser().getId(), context.getMattermostSiteUrl(), context.getBotAccessToken());
         sendMessageToSpecificReceiver(context, currentUserData, figmaWebhookResponse, REPLY_NOTIFICATION_ROOT);
         return comment.getUser().getId();
