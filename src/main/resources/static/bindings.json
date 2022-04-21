@@ -16,7 +16,7 @@
                                 "location": "connect",
                                 "label": "connect",
                                 "submit": {
-                                    "path": "/connect?key1=value1&key2=value2",
+                                    "path": "/connect",
                                     "expand": {
                                         "app": "all",
                                         "oauth2_app": "all"
