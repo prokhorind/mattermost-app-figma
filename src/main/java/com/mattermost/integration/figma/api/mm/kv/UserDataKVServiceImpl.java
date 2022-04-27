@@ -1,5 +1,6 @@
 package com.mattermost.integration.figma.api.mm.kv;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
 import com.mattermost.integration.figma.security.dto.UserDataDto;
 import com.mattermost.integration.figma.utils.json.JsonUtils;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class UserDataKVServiceImpl implements UserDataKVService {
@@ -23,6 +25,12 @@ public class UserDataKVServiceImpl implements UserDataKVService {
         return (UserDataDto) jsonUtils.convertStringToObject(kvService.get(userId, mmSiteUrl,
                 botAccessToken), UserDataDto.class).get();
     }
+
+    public Set<String> getUserIdsByTeamId(String teamId, String mmSiteUrl, String botAccessToken) {
+        return (Set<String>) jsonUtils.convertStringToObject(kvService.get(teamId, mmSiteUrl,
+                botAccessToken), new TypeReference<Set<String>>(){}).orElse(null);
+    }
+
 
     @Override
     public void saveUserData(InputPayload inputPayload) {
@@ -40,6 +48,14 @@ public class UserDataKVServiceImpl implements UserDataKVService {
             newUserData.setTeamIds(new HashSet<>(Collections.singletonList(teamId)));
             updateUserData(inputPayload, newUserData);
         }
+
+        Set<String> userIds = getUserIdsByTeamId(teamId, mmSiteUrl, botAccessToken);
+
+        if (Objects.isNull(userIds)) {
+            userIds = new HashSet<>();
+        }
+        userIds.add(userId);
+        kvService.put(teamId, userIds, mmSiteUrl, botAccessToken);
     }
 
     private void updateUserData(InputPayload inputPayload, UserDataDto currentData) {
