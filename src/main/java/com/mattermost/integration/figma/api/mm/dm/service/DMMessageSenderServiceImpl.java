@@ -74,7 +74,8 @@ public class DMMessageSenderServiceImpl implements DMMessageSenderService {
     }
 
     public String sendMessageToFileOwner(FigmaWebhookResponse figmaWebhookResponse, Context context) {
-        String fileOwnerId = fileOwnerService.findFileOwnerId(figmaWebhookResponse.getFileKey(), figmaWebhookResponse.getTriggeredBy().getId(),
+        String fileOwnerId = fileOwnerService.findFileOwnerId(figmaWebhookResponse.getFileKey(),
+                figmaWebhookResponse.getWebhookId(),figmaWebhookResponse.getTriggeredBy().getId(),
                 context.getMattermostSiteUrl(), context.getBotAccessToken());
         if (!fileOwnerId.equals(figmaWebhookResponse.getTriggeredBy().getId())) {
             UserDataDto fileOwnerData = userDataKVService.getUserData(fileOwnerId, context.getMattermostSiteUrl(), context.getBotAccessToken());
