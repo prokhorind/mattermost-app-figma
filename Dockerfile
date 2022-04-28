@@ -4,8 +4,6 @@ FROM adoptopenjdk/openjdk11
 
 EXPOSE 8080
 
-# Refer to Maven build -> finalName
-ARG JAR_FILE
 
 COPY . /opt/app
 
