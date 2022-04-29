@@ -29,7 +29,7 @@ public class OAuthServiceImpl implements OAuthService {
     private RestTemplate figmaRestTemplate;
 
     @Autowired
-    @Qualifier("figmaRestTemplate")
+    @Qualifier("mmRestTemplate")
     private RestTemplate mmRestTemplate;
 
     @Override
