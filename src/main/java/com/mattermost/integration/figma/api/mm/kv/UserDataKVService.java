@@ -11,4 +11,10 @@ public interface UserDataKVService {
     void saveUserData(InputPayload inputPayload);
 
     Set<String> getUserIdsByTeamId(String teamId, String mmSiteUrl, String botAccessToken);
+
+    void saveNewUserToAllUserIdsSet(String userId, String mmSiteUrl, String botAccessToken);
+
+    Set<String> getAllFigmaUserIds(String mmSiteUrl, String botAccessToken);
+
+    void saveUserToCertainTeam(String teamId, String userId, String mmSiteUrl, String botAccessToken);
 }

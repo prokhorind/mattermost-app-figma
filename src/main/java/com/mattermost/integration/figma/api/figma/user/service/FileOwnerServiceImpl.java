@@ -1,7 +1,6 @@
 package com.mattermost.integration.figma.api.figma.user.service;
 
 import com.mattermost.integration.figma.api.figma.user.service.dto.FileOwnerResponseDto;
-import com.mattermost.integration.figma.api.figma.webhook.dto.Webhook;
 import com.mattermost.integration.figma.api.figma.webhook.service.FigmaWebhookService;
 import com.mattermost.integration.figma.api.mm.kv.UserDataKVService;
 import com.mattermost.integration.figma.security.dto.FigmaOAuthRefreshTokenResponseDTO;
@@ -15,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class FileOwnerServiceImpl implements FileOwnerService {
