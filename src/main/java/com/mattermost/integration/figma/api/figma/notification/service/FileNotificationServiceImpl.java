@@ -5,10 +5,12 @@ import com.mattermost.integration.figma.api.figma.webhook.dto.Webhook;
 import com.mattermost.integration.figma.api.figma.webhook.service.FigmaWebhookService;
 import com.mattermost.integration.figma.api.mm.dm.service.DMMessageSenderService;
 import com.mattermost.integration.figma.api.mm.kv.KVService;
+import com.mattermost.integration.figma.api.mm.kv.SubscriptionKVService;
 import com.mattermost.integration.figma.api.mm.kv.UserDataKVService;
 import com.mattermost.integration.figma.input.figma.notification.FigmaWebhookResponse;
 import com.mattermost.integration.figma.input.figma.notification.FileCommentNotificationRequest;
 import com.mattermost.integration.figma.input.figma.notification.FileCommentWebhookResponse;
+import com.mattermost.integration.figma.input.mm.form.MMStaticSelectField;
 import com.mattermost.integration.figma.input.oauth.Context;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
 import com.mattermost.integration.figma.security.dto.FigmaOAuthRefreshTokenResponseDTO;
@@ -40,15 +42,17 @@ public class FileNotificationServiceImpl implements FileNotificationService {
     private final OAuthService oAuthService;
     private final UserDataKVService userDataKVService;
     private final DMMessageSenderService dmMessageSenderService;
+    private final SubscriptionKVService subscriptionKVService;
     private final KVService kvService;
     private final JsonUtils jsonUtils;
 
-    public FileNotificationServiceImpl(@Qualifier("figmaRestTemplate") RestTemplate figmaRestTemplate, FigmaWebhookService figmaWebhookService, OAuthService oAuthService, UserDataKVService userDataKVService, DMMessageSenderService dmMessageSenderService, KVService kvService, JsonUtils jsonUtils) {
+    public FileNotificationServiceImpl(@Qualifier("figmaRestTemplate") RestTemplate figmaRestTemplate, FigmaWebhookService figmaWebhookService, OAuthService oAuthService, UserDataKVService userDataKVService, DMMessageSenderService dmMessageSenderService, KVService kvService, JsonUtils jsonUtils, SubscriptionKVService subscriptionKVService) {
         this.figmaRestTemplate = figmaRestTemplate;
         this.figmaWebhookService = figmaWebhookService;
         this.oAuthService = oAuthService;
         this.userDataKVService = userDataKVService;
         this.dmMessageSenderService = dmMessageSenderService;
+        this.subscriptionKVService = subscriptionKVService;
         this.kvService = kvService;
         this.jsonUtils = jsonUtils;
     }
@@ -73,6 +77,16 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         Webhook webhook = (Webhook) jsonUtils.convertStringToObject(stringResponseEntity.getBody(), Webhook.class).get();
         kvService.put(webhook.getId(), inputPayload.getContext().getOauth2().getUser().getUserId(), mmSiteUrl, botAccessToken);
         return SubscribeToFileNotification.SUBSCRIBED;
+    }
+
+    @Override
+    public void subscribe(InputPayload payload) {
+        String mattermostSiteUrl = payload.getContext().getMattermostSiteUrl();
+        MMStaticSelectField file = payload.getValues().getFile();
+        String mmChannelID = payload.getContext().getChannel().getId();
+        String botAccessToken = payload.getContext().getBotAccessToken();
+
+        subscriptionKVService.putFile(file.getValue(), file.getLabel() ,mmChannelID, mattermostSiteUrl ,botAccessToken);
     }
 
     public void sendFileNotificationMessageToMM(FileCommentWebhookResponse fileCommentWebhookResponse) {

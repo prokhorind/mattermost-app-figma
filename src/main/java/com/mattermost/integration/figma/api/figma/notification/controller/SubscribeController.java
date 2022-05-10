@@ -1,38 +1,81 @@
 package com.mattermost.integration.figma.api.figma.notification.controller;
 
 
-import com.mattermost.integration.figma.api.mm.kv.UserDataKVService;
-import com.mattermost.integration.figma.input.oauth.InputPayload;
+import com.mattermost.integration.figma.api.figma.file.dto.FigmaProjectFilesDTO;
+import com.mattermost.integration.figma.api.figma.file.service.FigmaFileService;
 import com.mattermost.integration.figma.api.figma.notification.service.FileNotificationService;
-import com.mattermost.integration.figma.api.figma.notification.service.SubscribeToFileNotification;
+import com.mattermost.integration.figma.api.figma.project.dto.TeamProjectDTO;
+import com.mattermost.integration.figma.api.figma.project.service.FigmaProjectService;
+import com.mattermost.integration.figma.api.mm.dm.component.FigmaFilesFormReplyCreator;
+import com.mattermost.integration.figma.api.mm.dm.component.ProjectFormReplyCreator;
+import com.mattermost.integration.figma.api.mm.kv.UserDataKVService;
+import com.mattermost.integration.figma.config.exception.exceptions.mm.MMSubscriptionFromDMChannelException;
+import com.mattermost.integration.figma.input.mm.form.FormType;
+import com.mattermost.integration.figma.input.oauth.InputPayload;
+import com.mattermost.integration.figma.utils.json.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @Slf4j
 public class SubscribeController {
-    private final FileNotificationService fileNotificationService;
-    private final UserDataKVService userDataKVService;
+    @Autowired
+    private FileNotificationService fileNotificationService;
+    @Autowired
+    private UserDataKVService userDataKVService;
+    @Autowired
+    private FigmaProjectService figmaProjectService;
+    @Autowired
+    private FigmaFileService figmaFileService;
+    @Autowired
+    private JsonUtils jsonUtils;
 
-    public SubscribeController(FileNotificationService fileNotificationService, UserDataKVService userDataKVService) {
-        this.fileNotificationService = fileNotificationService;
-        this.userDataKVService = userDataKVService;
-    }
 
     @PostMapping("/subscribe")
-    public String subscribeToFileComment(@RequestBody InputPayload request) {
+    public FormType subscribeToFileComment(@RequestBody InputPayload request) throws IOException {
+
+        if("D".equalsIgnoreCase(request.getContext().getChannel().getType())){
+            throw new MMSubscriptionFromDMChannelException();
+        }
+
         System.out.println(request);
         log.info("Subscription to file comment from user with id: " + request.getContext().getUserAgent() + " has come");
         log.debug("Subscription to file comment request: " + request);
 
-        //TODO rewrite logic for updating updating webhook and k/v data
-        if (SubscribeToFileNotification.SUBSCRIBED.equals(fileNotificationService.subscribeToFileNotification(request))) {
-            userDataKVService.saveUserData(request);
-            return "{\"text\" : \"Success\"}";
-        }
+        fileNotificationService.subscribeToFileNotification(request);
         userDataKVService.saveUserData(request);
-        return "{\"text\" : \"You are successfully subscribed to an existing webhook\"}";
+
+        TeamProjectDTO projects = figmaProjectService.getProjectsByTeamId(request);
+
+        ProjectFormReplyCreator projectFormReplyCreator = new ProjectFormReplyCreator();
+
+        return projectFormReplyCreator.create(projects);
+    }
+
+    @PostMapping("/project-files")
+    public FormType sendProjectFiles(@RequestBody InputPayload request) throws IOException {
+        System.out.println(request);
+        log.info("Get files for project: " + request.getValues().getProject().getValue() + " has come");
+        log.debug("Get files for project request: " + request);
+
+        FigmaProjectFilesDTO projectFiles = figmaFileService.getProjectFiles(request);
+
+        FigmaFilesFormReplyCreator figmaFilesFormReplyCreator = new FigmaFilesFormReplyCreator();
+
+        return figmaFilesFormReplyCreator.create(projectFiles);
+    }
+
+    @PostMapping("/project-files/file")
+    public String sendProjectFile(@RequestBody InputPayload request) throws IOException {
+        System.out.println(request);
+        log.info("Get files for project: " + request.getValues().getFile().getValue() + " has come");
+        log.debug("Get files for project request: " + request);
+        fileNotificationService.subscribe(request);
+        return "{\"text\":\"Subscribed\"}";
     }
 }
