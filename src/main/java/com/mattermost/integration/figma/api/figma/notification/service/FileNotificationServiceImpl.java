@@ -42,17 +42,15 @@ public class FileNotificationServiceImpl implements FileNotificationService {
     private final OAuthService oAuthService;
     private final UserDataKVService userDataKVService;
     private final DMMessageSenderService dmMessageSenderService;
-    private final SubscriptionKVService subscriptionKVService;
     private final KVService kvService;
     private final JsonUtils jsonUtils;
 
-    public FileNotificationServiceImpl(@Qualifier("figmaRestTemplate") RestTemplate figmaRestTemplate, FigmaWebhookService figmaWebhookService, OAuthService oAuthService, UserDataKVService userDataKVService, DMMessageSenderService dmMessageSenderService, KVService kvService, JsonUtils jsonUtils, SubscriptionKVService subscriptionKVService) {
+    public FileNotificationServiceImpl(@Qualifier("figmaRestTemplate") RestTemplate figmaRestTemplate, FigmaWebhookService figmaWebhookService, OAuthService oAuthService, UserDataKVService userDataKVService, DMMessageSenderService dmMessageSenderService, KVService kvService, JsonUtils jsonUtils) {
         this.figmaRestTemplate = figmaRestTemplate;
         this.figmaWebhookService = figmaWebhookService;
         this.oAuthService = oAuthService;
         this.userDataKVService = userDataKVService;
         this.dmMessageSenderService = dmMessageSenderService;
-        this.subscriptionKVService = subscriptionKVService;
         this.kvService = kvService;
         this.jsonUtils = jsonUtils;
     }
@@ -77,16 +75,6 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         Webhook webhook = (Webhook) jsonUtils.convertStringToObject(stringResponseEntity.getBody(), Webhook.class).get();
         kvService.put(webhook.getId(), inputPayload.getContext().getOauth2().getUser().getUserId(), mmSiteUrl, botAccessToken);
         return SubscribeToFileNotification.SUBSCRIBED;
-    }
-
-    @Override
-    public void subscribe(InputPayload payload) {
-        String mattermostSiteUrl = payload.getContext().getMattermostSiteUrl();
-        MMStaticSelectField file = payload.getValues().getFile();
-        String mmChannelID = payload.getContext().getChannel().getId();
-        String botAccessToken = payload.getContext().getBotAccessToken();
-
-        subscriptionKVService.putFile(file.getValue(), file.getLabel() ,mmChannelID, mattermostSiteUrl ,botAccessToken);
     }
 
     public void sendFileNotificationMessageToMM(FileCommentWebhookResponse fileCommentWebhookResponse) {

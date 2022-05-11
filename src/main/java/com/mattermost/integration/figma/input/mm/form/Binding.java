@@ -7,4 +7,5 @@ public class Binding {
     private String location;
     private String label;
     private Form form;
+    private Submit submit;
 }
