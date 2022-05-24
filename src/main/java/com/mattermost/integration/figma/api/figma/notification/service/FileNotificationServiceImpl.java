@@ -128,11 +128,6 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         String teamWebhookId = kvService.get(TEAM_WEBHOOK_PREFIX.concat(teamId), mmSiteUrl, botAccessToken);
         if (Objects.nonNull(teamWebhookId) && !teamWebhookId.isBlank()) {
             String webhookOwnerId = kvService.get(WEBHOOK_ID_PREFIX.concat(teamWebhookId), mmSiteUrl, botAccessToken);
-
-            if(webhookOwnerId.isBlank()){
-                return;
-            }
-
             UserDataDto webhookOwner = userDataKVService.getUserData(webhookOwnerId, mmSiteUrl, botAccessToken);
             FigmaOAuthRefreshTokenResponseDTO figmaOAuthRefreshTokenResponseDTO = oAuthService.refreshToken(webhookOwner.getClientId(), webhookOwner.getClientSecret(), webhookOwner.getRefreshToken());
             figmaWebhookService.getTeamWebhooks(teamId, figmaOAuthRefreshTokenResponseDTO.getAccessToken())
