@@ -106,6 +106,11 @@ public class SubscribeController {
         System.out.println(request);
         log.info("Get Subscriptions for channel: " + request.getContext().getChannel().getId() + " has come");
         log.debug("Get files request: " + request);
+
+        if (!subscribeService.isBotExistsInChannel(request)) {
+            throw new MMSubscriptionInChannelWithoutBotException();
+        }
+
         subscribeService.sendSubscriptionFilesToMMChannel(request);
         return "{\"type\":\"ok\"}";
     }

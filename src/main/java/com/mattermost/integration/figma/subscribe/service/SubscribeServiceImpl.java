@@ -47,6 +47,10 @@ public class SubscribeServiceImpl implements SubscribeService {
         String mmChannelID = payload.getContext().getChannel().getId();
         String botAccessToken = payload.getContext().getBotAccessToken();
         Set<FileInfo> files = subscriptionKVService.getFilesByMMChannelId(mmChannelID, mattermostSiteUrl, botAccessToken);
+        if (files.isEmpty()) {
+            dmMessageSenderService.sendMessage(payload, "You have no subscriptions in this channel");
+            return;
+        }
         files.forEach(f -> dmMessageSenderService.sendFileSubscriptionToMMChat(f, payload));
     }
 
@@ -82,6 +86,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 
         List<MMChannelUser> usersInChannel = mmUserService.getUsersByChannelId(channelId, mattermostSiteUrl, userAccessToken);
 
-        return usersInChannel.stream().anyMatch(u-> botUserId.equals(u.getUserId()));
+        return usersInChannel.stream().anyMatch(u -> botUserId.equals(u.getUserId()));
     }
 }
