@@ -66,6 +66,14 @@ public class SubscribeServiceImpl implements SubscribeService {
     }
 
     @Override
+    public Set<FileInfo> getFilesByChannelId(InputPayload request) {
+        String mattermostSiteUrl = request.getContext().getMattermostSiteUrl();
+        String botAccessToken = request.getContext().getBotAccessToken();
+        String channelId = request.getContext().getChannel().getId();
+        return subscriptionKVService.getFilesByMMChannelId(channelId, mattermostSiteUrl, botAccessToken);
+    }
+
+    @Override
     public boolean isBotExistsInChannel(InputPayload payload) {
         String userAccessToken = payload.getContext().getActingUserAccessToken();
         String channelId = payload.getContext().getChannel().getId();
