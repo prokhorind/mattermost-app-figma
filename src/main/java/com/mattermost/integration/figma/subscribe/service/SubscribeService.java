@@ -16,6 +16,7 @@ public interface SubscribeService {
     Set<String> getMMChannelIdsByFileId(Context context, String fileKey);
 
     Set<FileInfo> getFilesByChannelId(InputPayload request);
+
     boolean isBotExistsInChannel(InputPayload payload);
 
     Set<String> getMMChannelIdsByProjectId(Context context, String projectId);
