@@ -4,12 +4,10 @@ import com.mattermost.integration.figma.api.figma.comment.service.CommentService
 import com.mattermost.integration.figma.api.figma.user.service.FileOwnerService;
 import com.mattermost.integration.figma.api.mm.dm.component.DMCallButtonMessageCreator;
 import com.mattermost.integration.figma.api.mm.dm.component.DMFormMessageCreator;
-import com.mattermost.integration.figma.api.mm.dm.dto.DMChannelPayload;
-import com.mattermost.integration.figma.api.mm.dm.dto.DMMessageWithPropsFields;
-import com.mattermost.integration.figma.api.mm.dm.dto.DMMessageWithPropsPayload;
-import com.mattermost.integration.figma.api.mm.dm.dto.FileSubscriptionMessage;
+import com.mattermost.integration.figma.api.mm.dm.dto.*;
 import com.mattermost.integration.figma.api.mm.kv.UserDataKVService;
 import com.mattermost.integration.figma.api.mm.kv.dto.FileInfo;
+import com.mattermost.integration.figma.api.mm.kv.dto.ProjectInfo;
 import com.mattermost.integration.figma.api.mm.user.MMUserService;
 import com.mattermost.integration.figma.input.figma.notification.*;
 import com.mattermost.integration.figma.input.mm.user.MMUser;
@@ -101,6 +99,22 @@ public class DMMessageSenderServiceImpl implements DMMessageSenderService {
         fileSubscriptionMessage.setMmUser(user);
 
         messageService.sendDMMessage(messageCreator.createDMMessageWithPropsPayload(fileSubscriptionMessage));
+    }
+
+    @Override
+    public void sendProjectSubscriptionsToMMChat(ProjectInfo project, InputPayload payload) {
+        String userId = project.getUserId();
+        String mattermostSiteUrl = payload.getContext().getMattermostSiteUrl();
+        String botAccessToken = payload.getContext().getBotAccessToken();
+
+        MMUser user = mmUserService.getUserById(userId, mattermostSiteUrl, botAccessToken);
+
+        ProjectSubscriptionMessage projectSubscriptionMessage = new ProjectSubscriptionMessage();
+        projectSubscriptionMessage.setProjectInfo(project);
+        projectSubscriptionMessage.setPayload(payload);
+        projectSubscriptionMessage.setMmUser(user);
+
+        messageService.sendDMMessage(messageCreator.createDMMessageWithPropsPayload(projectSubscriptionMessage));
     }
 
     @Override
