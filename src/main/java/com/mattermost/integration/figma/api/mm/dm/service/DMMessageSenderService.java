@@ -1,5 +1,6 @@
 package com.mattermost.integration.figma.api.mm.dm.service;
 
+import com.mattermost.integration.figma.api.mm.dm.dto.DMMessagePayload;
 import com.mattermost.integration.figma.api.mm.kv.dto.FileInfo;
 import com.mattermost.integration.figma.api.mm.kv.dto.ProjectInfo;
 import com.mattermost.integration.figma.input.figma.notification.FigmaWebhookResponse;
@@ -19,6 +20,8 @@ public interface DMMessageSenderService {
     void sendFileSubscriptionToMMChat(FileInfo file , InputPayload payload);
 
     void sendMessageToSubscribedChannel(String channelId, FileCommentWebhookResponse fileCommentWebhookResponse);
+
+    void sendMessage(InputPayload payload , String text);
 
     void sendProjectSubscriptionsToMMChat(ProjectInfo project, InputPayload payload);
 }

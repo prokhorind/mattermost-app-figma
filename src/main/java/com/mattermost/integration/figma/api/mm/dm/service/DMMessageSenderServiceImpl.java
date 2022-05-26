@@ -129,6 +129,17 @@ public class DMMessageSenderServiceImpl implements DMMessageSenderService {
 
     }
 
+    @Override
+    public void sendMessage(InputPayload payload , String message) {
+        Context context = payload.getContext();
+        DMMessagePayload messagePayload = new DMMessagePayload();
+        messagePayload.setChannelId(context.getChannel().getId());
+        messagePayload.setMessage(message);
+        messagePayload.setToken(context.getBotAccessToken());
+        messagePayload.setMmSiteUrlBase(context.getMattermostSiteUrl());
+        messageService.sendDMMessage(messagePayload);
+    }
+
     public void sendMessageToSpecificReceiver(Context context, UserDataDto specificUserData,
                                               FigmaWebhookResponse figmaWebhookResponse, String notificationMessageRoot) {
         context.setActingUser(new ActingUser());
