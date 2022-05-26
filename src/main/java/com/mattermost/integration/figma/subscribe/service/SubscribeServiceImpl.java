@@ -120,8 +120,8 @@ public class SubscribeServiceImpl implements SubscribeService {
         String projectName = payload.getValues().getProject().getLabel();
         String subscribedBy = payload.getContext().getActingUser().getId();
 
-        checkIfProjectHasSubscribedFiles(payload);
         subscriptionKVService.putProject(projectId, projectName, subscribedBy, channelId, mattermostSiteUrl, botAccessToken);
+        checkIfProjectHasSubscribedFiles(payload);
     }
 
 
