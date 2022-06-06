@@ -48,8 +48,7 @@ public class ExceptionHandlingController extends ResponseEntityExceptionHandler 
     @ExceptionHandler(value = {
             MMSubscriptionFromDMChannelException.class,
             MMSubscriptionInChannelWithoutBotException.class,
-            MMSubscriptionToFileInSubscribedProjectException.class,
-            FigmaBasicTeamSubscriptionException.class
+            MMSubscriptionToFileInSubscribedProjectException.class
     })
     @ResponseBody
     public String handleMMSubscriptionFromDMChannelException(
