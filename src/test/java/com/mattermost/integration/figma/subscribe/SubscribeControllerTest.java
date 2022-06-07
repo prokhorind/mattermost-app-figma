@@ -103,7 +103,6 @@ class SubscribeControllerTest {
         FormType subscribe = testedInstance.subscribe(inputPayload);
 
         assertNotNull(subscribe);
-
     }
 
     @Test
@@ -111,7 +110,6 @@ class SubscribeControllerTest {
         when(channel.getType()).thenReturn(DM_CHANNEL);
 
         assertThrows(MMSubscriptionFromDMChannelException.class, () -> testedInstance.subscribe(inputPayload));
-
     }
 
     @Test
@@ -192,7 +190,6 @@ class SubscribeControllerTest {
         when(subscribeService.isBotExistsInChannel(inputPayload)).thenReturn(false);
 
         assertThrows(MMSubscriptionInChannelWithoutBotException.class, () ->  testedInstance.sendChannelSubscriptions(inputPayload));
-
     }
 
     @Test

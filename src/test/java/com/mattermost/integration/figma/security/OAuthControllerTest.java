@@ -46,12 +46,10 @@ class OAuthControllerTest {
     void setUp() {
         when(inputPayload.getContext()).thenReturn(context);
         when(context.getOauth2()).thenReturn(oAuth2);
-
     }
 
     @Test
     void shouldThrowMMFigmaCredsNotSavedExceptionWhenFigmaCredentialsNotStored() {
-
         assertThrows(MMFigmaCredsNotSavedException.class, () -> testedInstance.getOauthForm(inputPayload));
     }
 
@@ -59,11 +57,10 @@ class OAuthControllerTest {
     void shouldReturnURL() {
         when(oAuth2.getCompleteUrl()).thenReturn(URL);
         when(oAuth2.getClientId()).thenReturn(CLIENT_ID);
-
         when(oAuthService.generateUrl(any())).thenReturn(URL);
 
-
         String url = testedInstance.getOauthForm(inputPayload);
+
         assertEquals(EXPECTED_RESPONSE, url);
     }
 
@@ -77,6 +74,7 @@ class OAuthControllerTest {
     @Test
     void shouldReturnConnectUrl() {
         when(oAuthService.getConnectUrl(inputPayload)).thenReturn(URL);
+
         String connectUrl = testedInstance.connect(inputPayload);
 
         assertEquals(EXPECTED_CONNECT_URL, connectUrl);
@@ -89,17 +87,5 @@ class OAuthControllerTest {
         testedInstance.postOauthClientSecret(inputPayload);
 
         verify(oAuthService).storeFigmaUserToken(inputPayload, figmaTokenDTO);
-    }
-
-    @Test
-    void postOauthClientSecret() {
-    }
-
-    @Test
-    void posOauthCreds() {
-    }
-
-    @Test
-    void connect() {
     }
 }
