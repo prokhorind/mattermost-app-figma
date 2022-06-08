@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,6 +129,7 @@ public class SubscriptionKVServiceImpl implements SubscriptionKVService {
         String projectName = payload.getValues().getProject().getLabel();
         String subscribedBy = payload.getContext().getActingUser().getId();
         String figmaUserId = payload.getContext().getOauth2().getUser().getUserId();
+        String teamId = payload.getValues().getTeamId();
 
         String projectString = kvService.get(String.format("%s%s", PROJECT_KEY_PREFIX, projectId), mmSiteUrl, botAccessToken);
         ProjectInfo projectInfo = (ProjectInfo) jsonUtils.convertStringToObject(projectString, ProjectInfo.class).orElse(new ProjectInfo());
@@ -135,8 +137,11 @@ public class SubscriptionKVServiceImpl implements SubscriptionKVService {
         projectInfo.setProjectId(projectId);
         projectInfo.setName(projectName);
         projectInfo.setUserId(subscribedBy);
-        projectInfo.setCreatedAt(LocalDate.now());
+        if (Objects.nonNull(projectInfo.getCreatedAt())) {
+            projectInfo.setCreatedAt(LocalDate.now());
+        }
         projectInfo.setFigmaUserId(figmaUserId);
+        projectInfo.setTeamId(teamId);
 
         kvService.put(String.format("%s%s", PROJECT_KEY_PREFIX, projectId), projectInfo, mmSiteUrl, botAccessToken);
         kvService.addValuesToDoubleEndedKvPair(projectId, channelId, SUBSCRIPTION_PROJECT_TO_MM_CHANNEL_PREFIX, SUBSCRIPTION_MM_CHANNEL_TO_PROJECT_PREFIX, mmSiteUrl, botAccessToken);
@@ -151,5 +156,25 @@ public class SubscriptionKVServiceImpl implements SubscriptionKVService {
     @Override
     public void unsubscribeProjectFromChannel(String projectId, String mmChannelId, String mattermostSiteUrl, String token) {
         kvService.deleteValuesFromDoubleEndedKvPair(projectId, mmChannelId, SUBSCRIPTION_PROJECT_TO_MM_CHANNEL_PREFIX, SUBSCRIPTION_MM_CHANNEL_TO_PROJECT_PREFIX, mattermostSiteUrl, token);
+    }
+
+    @Override
+    public void updateProjectName(String projectName, String projectId, String mattermostSiteUrl, String token) {
+        Optional<ProjectInfo> currentProject = getProjectById(projectId, mattermostSiteUrl, token);
+        if (currentProject.isPresent()) {
+            ProjectInfo projectInfo = currentProject.get();
+            projectInfo.setName(projectName);
+            kvService.put(String.format("%s%s", PROJECT_KEY_PREFIX, projectId), projectInfo, mattermostSiteUrl, token);
+        }
+    }
+
+    @Override
+    public void updateFileName(String fileName, String fileId, String mattermostSiteUrl, String token) {
+        Optional<FileInfo> currentFile = getFile(mattermostSiteUrl, token, fileId);
+        if (currentFile.isPresent()) {
+            FileInfo fileInfo = currentFile.get();
+            fileInfo.setFileName(fileName);
+            kvService.put(String.format("%s%s", FILE_KEY_PREFIX, fileId), fileInfo, mattermostSiteUrl, token);
+        }
     }
 }
