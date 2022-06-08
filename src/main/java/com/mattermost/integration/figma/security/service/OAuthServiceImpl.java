@@ -43,8 +43,7 @@ public class OAuthServiceImpl implements OAuthService {
         String clientId = payload.getContext().getOauth2().getClientId();
         String redirect = payload.getContext().getOauth2().getCompleteUrl();
         String state = payload.getValues().getState();
-        String url = String.format("%s/oauth?client_id=%s&redirect_uri=%s&scope=file_read&state=%s&response_type=code", BASE_URL, clientId, redirect, state);
-        return url;
+        return String.format("%s/oauth?client_id=%s&redirect_uri=%s&scope=file_read&state=%s&response_type=code", BASE_URL, clientId, redirect, state);
     }
 
     @Override
@@ -68,7 +67,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         HttpEntity<OAuthCredsDTO> request = new HttpEntity<>(credsDTO, headers);
         log.info("Sending request to store OauthCreds for client with id: " + clientId);
-        ResponseEntity<String> resp = mmRestTemplate.postForEntity(String.format("%s%s", mmSiteUrlBase, STORE_CREDS_URL), request, String.class);
+        mmRestTemplate.postForEntity(String.format("%s%s", mmSiteUrlBase, STORE_CREDS_URL), request, String.class);
         log.info("Successfully stored creds");
     }
 

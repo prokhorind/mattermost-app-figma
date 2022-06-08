@@ -11,6 +11,8 @@
 	<groupId>com.mattermost.integration</groupId>
 	<artifactId>figma</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
 	<name>figma</name>
 	<description>Matternost integration for Figma</description>
 	<properties>
@@ -28,11 +30,14 @@
 			<artifactId>aws-serverless-java-container-springboot2</artifactId>
 			<version>1.8</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -1,14 +1,14 @@
 package com.mattermost.integration.figma.config.exception.handler;
 
+import com.mattermost.integration.figma.config.exception.exceptions.figma.FigmaBadRequestException;
 import com.mattermost.integration.figma.config.exception.exceptions.figma.FigmaBasicTeamSubscriptionException;
 import com.mattermost.integration.figma.config.exception.exceptions.figma.FigmaResourceForbiddenException;
 import com.mattermost.integration.figma.config.exception.exceptions.figma.FigmaResourceNotFoundException;
-import com.mattermost.integration.figma.config.exception.exceptions.mm.MMSubscriptionFromDMChannelException;
-import com.mattermost.integration.figma.config.exception.exceptions.mm.MMSubscriptionInChannelWithoutBotException;
-import com.mattermost.integration.figma.config.exception.exceptions.mm.MMSubscriptionToFileInSubscribedProjectException;
+import com.mattermost.integration.figma.config.exception.exceptions.mm.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -22,6 +22,20 @@ public class ExceptionHandlingController extends ResponseEntityExceptionHandler 
         return "{\"type\":\"error\",\"text\":\"Figma resource was not found\"}";
     }
 
+    @ExceptionHandler(value = {FigmaBadRequestException.class})
+    @ResponseBody
+    public String handleFigmaBadRequestException(RuntimeException ex, WebRequest request) {
+
+        String requestUrl = ((ServletWebRequest) request).getRequest().getRequestURI();
+        String[] path = requestUrl.split("/");
+        String url = path[path.length - 1];
+        String message = ex.getMessage();
+        if ("projects".equals(url) || "file".equals(url)) {
+            message = new FigmaBasicTeamSubscriptionException().getMessage();
+        }
+        return String.format("{\"type\":\"error\",\"text\":\"%s\"}", message);
+    }
+
     @ExceptionHandler(value = {FigmaResourceForbiddenException.class})
     @ResponseBody
     public String handleFigmaResourceForbiddenException(
@@ -33,6 +47,8 @@ public class ExceptionHandlingController extends ResponseEntityExceptionHandler 
             MMSubscriptionFromDMChannelException.class,
             MMSubscriptionInChannelWithoutBotException.class,
             MMSubscriptionToFileInSubscribedProjectException.class,
+            MMFigmaUserNotSavedException.class,
+            MMFigmaCredsNotSavedException.class,
             FigmaBasicTeamSubscriptionException.class
     })
     @ResponseBody
