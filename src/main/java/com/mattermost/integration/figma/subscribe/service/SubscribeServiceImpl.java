@@ -194,12 +194,19 @@ public class SubscribeServiceImpl implements SubscribeService {
 
     private void updateProjects(Set<ProjectInfo> projects, String mmSiteUrl, String botAccessToken) {
         for (ProjectInfo project : projects) {
-            List<ProjectDTO> figmaProjects = figmaProjectService.getProjectsByTeamId(project.getTeamId(),
-                    project.getFigmaUserId(), mmSiteUrl, botAccessToken).getProjects();
+
+            Optional<TeamProjectDTO> projectsByTeamIdOptional = figmaProjectService.getProjectsByTeamId(project.getTeamId(),
+                    project.getFigmaUserId(), mmSiteUrl, botAccessToken);
+
+            if (projectsByTeamIdOptional.isEmpty()) {
+                continue;
+            }
+
+            List<ProjectDTO> figmaProjects = projectsByTeamIdOptional.get().getProjects();
             figmaProjects.stream().filter(projectDTO -> projectDTO.getId().equals(project.getProjectId()))
                     .forEach(projectDTO -> {
                         subscriptionKVService.updateProjectName(projectDTO.getName(),
-                            projectDTO.getId(), mmSiteUrl, botAccessToken);
+                                projectDTO.getId(), mmSiteUrl, botAccessToken);
                         project.setName(projectDTO.getName());
                     });
         }
@@ -207,7 +214,13 @@ public class SubscribeServiceImpl implements SubscribeService {
 
     private void updateFiles(Set<FileInfo> files, String mmSiteUrl, String botAccessToken) {
         for (FileInfo fileInfo : files) {
-            UserDataDto userDataDto = userDataKVService.getUserData(fileInfo.getFigmaUserId(), mmSiteUrl, botAccessToken);
+            Optional<UserDataDto> userDataOptional = userDataKVService.getUserData(fileInfo.getFigmaUserId(), mmSiteUrl, botAccessToken);
+
+            if (userDataOptional.isEmpty()) {
+                continue;
+            }
+
+            UserDataDto userDataDto = userDataOptional.get();
             String accessToken = oAuthService.refreshToken(userDataDto.getClientId(), userDataDto.getClientSecret(), userDataDto.getRefreshToken()).getAccessToken();
             FigmaProjectFileDTO upToDateFile = figmaFileService.getFileByKey(fileInfo.getFileId(), accessToken);
             subscriptionKVService.updateFileName(upToDateFile.getName(), upToDateFile.getKey(), mmSiteUrl, botAccessToken);
