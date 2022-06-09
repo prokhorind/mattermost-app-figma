@@ -1,6 +1,7 @@
 package com.mattermost.integration.figma.subscribe.service;
 
 import com.mattermost.integration.figma.api.figma.file.dto.FigmaProjectFileDTO;
+import com.mattermost.integration.figma.api.figma.file.dto.FigmaProjectFilesDTO;
 import com.mattermost.integration.figma.api.figma.file.service.FigmaFileService;
 import com.mattermost.integration.figma.api.figma.project.dto.ProjectDTO;
 import com.mattermost.integration.figma.api.figma.project.dto.TeamProjectDTO;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -155,8 +157,11 @@ public class SubscribeServiceImpl implements SubscribeService {
         String mmUserId = payload.getContext().getActingUser().getId();
 
         String figmaUserId = kvService.get(MM_USER_ID_PREFIX.concat(mmUserId), mattermostSiteUrl, botAccessToken);
-        Set<String> projectFilesIds = figmaFileService.getProjectFiles(projectId, figmaUserId, mattermostSiteUrl, botAccessToken)
-                .getFiles().stream().map(FigmaProjectFileDTO::getKey).collect(Collectors.toSet());
+        Optional<FigmaProjectFilesDTO> projectFiles = figmaFileService.getProjectFiles(projectId, figmaUserId, mattermostSiteUrl, botAccessToken);
+        if (projectFiles.isEmpty()) {
+            return;
+        }
+        Set<String> projectFilesIds = projectFiles.get().getFiles().stream().map(FigmaProjectFileDTO::getKey).collect(Collectors.toSet());
         Set<String> channelSubscribedFilesIds = subscriptionKVService.getFilesByMMChannelId(channelId, mattermostSiteUrl,
                 botAccessToken).stream().map(FileInfo::getFileId).collect(Collectors.toSet());
         for (String projectFileId : projectFilesIds) {
@@ -176,8 +181,11 @@ public class SubscribeServiceImpl implements SubscribeService {
         Set<ProjectInfo> channelProjects = subscriptionKVService.getProjectsByMMChannelId(mmChannelID, mattermostSiteUrl, botAccessToken);
         String figmaUserId = kvService.get(MM_USER_ID_PREFIX.concat(mmUserId), mattermostSiteUrl, botAccessToken);
         for (ProjectInfo projectInfo : channelProjects) {
-            Set<String> projectFilesIds = figmaFileService.getProjectFiles(projectInfo.getProjectId(), figmaUserId, mattermostSiteUrl, botAccessToken)
-                    .getFiles().stream().map(FigmaProjectFileDTO::getKey).collect(Collectors.toSet());
+            Optional<FigmaProjectFilesDTO> projectFiles = figmaFileService.getProjectFiles(projectInfo.getProjectId(), figmaUserId, mattermostSiteUrl, botAccessToken);
+            if (projectFiles.isEmpty()) {
+                continue;
+            }
+            Set<String> projectFilesIds = projectFiles.get().getFiles().stream().map(FigmaProjectFileDTO::getKey).collect(Collectors.toSet());
             if (projectFilesIds.contains(file.getValue())) {
                 throw new MMSubscriptionToFileInSubscribedProjectException(projectInfo.getName());
             }
