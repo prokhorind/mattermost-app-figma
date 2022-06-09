@@ -1,10 +1,8 @@
 package com.mattermost.integration.figma.install;
 
 import com.mattermost.integration.figma.input.mm.manifest.*;
-import com.mattermost.integration.figma.input.oauth.InputPayload;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;

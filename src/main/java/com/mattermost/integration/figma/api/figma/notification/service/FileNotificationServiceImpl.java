@@ -201,7 +201,7 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         for (ProjectDTO projectDTO : teamProjects.get().getProjects()) {
             Optional<FigmaProjectFilesDTO> filesDTO = figmaFileService.getProjectFiles(projectDTO.getId(), commenterId, mattermostSiteUrl, botAccessToken);
             if (filesDTO.isEmpty()) {
-                return;
+                continue;
             }
             List<FigmaProjectFileDTO> projectFiles = filesDTO.get().getFiles();
             Optional<FigmaProjectFileDTO> triggeredFile = projectFiles.stream().filter(file -> file.getKey().equals(figmaData.getFileKey())).findFirst();
