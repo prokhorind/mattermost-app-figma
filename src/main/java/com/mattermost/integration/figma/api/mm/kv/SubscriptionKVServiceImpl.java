@@ -62,7 +62,9 @@ public class SubscriptionKVServiceImpl implements SubscriptionKVService {
         fileInfo.setFileId(fileKey);
         fileInfo.setFileName(fileData.getFileName());
         fileInfo.setUserId(fileData.getSubscribedBy());
-        fileInfo.setCreatedAt(LocalDate.now());
+        if (Objects.isNull(fileInfo.getCreatedAt())) {
+            fileInfo.setCreatedAt(LocalDate.now());
+        }
         fileInfo.setFigmaUserId(fileData.getFigmaUserId());
 
         kvService.put(String.format("%s%s", FILE_KEY_PREFIX, fileKey), fileInfo, mattermostSiteUrl, token);
@@ -137,7 +139,7 @@ public class SubscriptionKVServiceImpl implements SubscriptionKVService {
         projectInfo.setProjectId(projectId);
         projectInfo.setName(projectName);
         projectInfo.setUserId(subscribedBy);
-        if (Objects.nonNull(projectInfo.getCreatedAt())) {
+        if (Objects.isNull(projectInfo.getCreatedAt())) {
             projectInfo.setCreatedAt(LocalDate.now());
         }
         projectInfo.setFigmaUserId(figmaUserId);
