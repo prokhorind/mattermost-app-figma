@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.mattermost.integration.figma.input.mm.binding.Command.*;
+
 @Component
 public class BindingsProvider {
     private static final String TYPE_OK = "ok";
@@ -16,11 +18,6 @@ public class BindingsProvider {
     private static final String ICON = "icon.png";
     private static final String ALL = "all";
     private static final String FIELD_TEXT_TYPE = "text";
-    private static final String CONFIGURE = "configure";
-    private static final String CONNECT = "connect";
-    private static final String DISCONNECT = "disconnect";
-    private static final String SUBSCRIBE = "subscribe";
-    private static final String LIST = "list";
 
     public BindingsDTO createDefaultBindingsWithoutCommands() {
         BindingsDTO bindingsDTO = new BindingsDTO();
@@ -48,23 +45,23 @@ public class BindingsProvider {
     }
 
     public Binding createConfigureBinding() {
-        return createBaseCommand(CONFIGURE, createConfigureForm(), null);
+        return createBaseCommand(CONFIGURE.getTitle(), createConfigureForm(), null);
     }
 
     public Binding createConnectBinding() {
-        return createBaseCommand(CONNECT, null, createConnectSubmit());
+        return createBaseCommand(CONNECT.getTitle(), null, createConnectSubmit());
     }
 
     public Binding createDisconnectBinding() {
-        return createBaseCommand(DISCONNECT, null, createDisconnectSubmit());
+        return createBaseCommand(DISCONNECT.getTitle(), null, createDisconnectSubmit());
     }
 
     public Binding createSubscribeBinding() {
-        return createBaseCommand(SUBSCRIBE, createSubscribeForm(), null);
+        return createBaseCommand(SUBSCRIBE.getTitle(), createSubscribeForm(), null);
     }
 
     public Binding createListBinding() {
-        return createBaseCommand(LIST, null, createListSubmit());
+        return createBaseCommand(LIST.getTitle(), null, createListSubmit());
     }
 
     private Submit createListSubmit() {
@@ -91,7 +88,7 @@ public class BindingsProvider {
 
     private Submit createSubscribeSubmit() {
         Submit subscribeSubmit = new Submit();
-        subscribeSubmit.setPath("/".concat(SUBSCRIBE));
+        subscribeSubmit.setPath("/".concat(SUBSCRIBE.getTitle()));
         Expand expand = new Expand();
         expand.setActingUserAccessToken(ALL);
         expand.setApp(ALL);
@@ -104,13 +101,13 @@ public class BindingsProvider {
 
     private Submit createDisconnectSubmit() {
         Submit connectSubmit = createConnectSubmit();
-        connectSubmit.setPath("/".concat(DISCONNECT));
+        connectSubmit.setPath("/".concat(DISCONNECT.getTitle()));
         return connectSubmit;
     }
 
     private Submit createConnectSubmit() {
         Submit submit = new Submit();
-        submit.setPath("/".concat(CONNECT));
+        submit.setPath("/".concat(CONNECT.getTitle()));
         Expand expand = new Expand();
         expand.setApp(ALL);
         expand.setOauth2App(ALL);
@@ -126,7 +123,7 @@ public class BindingsProvider {
         configureForm.setTitle("Configures Figma OAuth2 App credentials");
 
         Submit submit = new Submit();
-        submit.setPath("/".concat(CONFIGURE));
+        submit.setPath("/".concat(CONFIGURE.getTitle()));
 
         Expand expand = new Expand();
         expand.setActingUserAccessToken(ALL);

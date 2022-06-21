@@ -15,6 +15,7 @@ import java.util.Objects;
 @Slf4j
 public class BindingServiceImpl implements BindingService {
     private static final String ADMIN_ROLE = "system_admin system_user";
+    private static final int FIRST_INSTANCE = 0;
 
     @Autowired
     private MMUserService mmUserService;
@@ -48,6 +49,6 @@ public class BindingServiceImpl implements BindingService {
     }
 
     private void addCommandToBindings(BindingsDTO bindings, Binding binding) {
-        bindings.getData().get(0).getBindings().get(0).getBindings().add(binding);
+        bindings.getData().get(FIRST_INSTANCE).getBindings().get(FIRST_INSTANCE).getBindings().add(binding);
     }
 }

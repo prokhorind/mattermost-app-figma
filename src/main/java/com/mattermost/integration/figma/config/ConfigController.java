@@ -28,7 +28,7 @@ public class ConfigController {
 
     @PostMapping(value = "/bindings", produces= MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public BindingsDTO postBindings(@RequestBody InputPayload payload) throws IOException {
+    public BindingsDTO postBindings(@RequestBody InputPayload payload) {
         return bindingService.filterBindingsDependingOnUser(payload);
     }
 
