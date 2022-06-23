@@ -84,7 +84,7 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         sendNotificationsForSubscribedProjects(fileCommentWebhookResponse);
     }
 
-    public void subscribeToFileNotification(InputPayload inputPayload) {
+    public void createTeamWebhook(InputPayload inputPayload) {
 
         String mmSiteUrl = inputPayload.getContext().getMattermostSiteUrl();
         String botAccessToken = inputPayload.getContext().getBotAccessToken();
@@ -100,7 +100,7 @@ public class FileNotificationServiceImpl implements FileNotificationService {
             return;
         }
 
-        if (!StringUtils.isBlank(currentTeamWebhookId)) {
+        if (StringUtils.isNotBlank(currentTeamWebhookId)) {
             return;
         }
 
@@ -115,10 +115,11 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         try {
             stringResponseEntity = figmaRestTemplate.postForEntity(BASE_WEBHOOK_URL, request, String.class);
         } catch (RuntimeException e) {
+            log.error(e.getMessage());
             return Optional.empty();
         }
 
-        return  Optional.of(jsonUtils.convertStringToObject(stringResponseEntity.getBody(), Webhook.class).orElse(null));
+        return  Optional.of(jsonUtils.convertStringToObject(stringResponseEntity.getBody(), Webhook.class).orElse(Optional.empty()));
     }
 
     public void sendFileNotificationMessageToMM(FileCommentWebhookResponse fileCommentWebhookResponse) {
