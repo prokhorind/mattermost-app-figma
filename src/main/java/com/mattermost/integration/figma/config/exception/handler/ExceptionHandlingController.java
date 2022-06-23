@@ -56,4 +56,10 @@ public class ExceptionHandlingController extends ResponseEntityExceptionHandler 
             RuntimeException ex, WebRequest request) {
         return String.format("{\"type\":\"error\",\"text\":\"%s\"}", ex.getMessage());
     }
+
+    @ExceptionHandler(value = {FigmaCannotCreateWebhookException.class})
+    @ResponseBody
+    public String handleFigmaCannotCreateWebhookException(RuntimeException ex, WebRequest request) {
+        return String.format("{\"type\":\"error\",\"text\":\"%s\"}", ex.getMessage());
+    }
 }
