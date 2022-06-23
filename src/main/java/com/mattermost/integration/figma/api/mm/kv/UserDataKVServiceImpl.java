@@ -144,9 +144,15 @@ public class UserDataKVServiceImpl implements UserDataKVService {
     public void changeUserConnectionStatus(String mmUserId, boolean isConnected, String mmSiteUrl, String botAccessToken) {
         String figmaUserId = getFigmaUserIdByMMUserId(mmUserId, mmSiteUrl, botAccessToken);
         Optional<UserDataDto> userData = getUserData(figmaUserId, mmSiteUrl, botAccessToken);
-        userData.ifPresent(userDataDto -> {
-                    userDataDto.setConnected(isConnected);
-                    kvService.put(USER_KV_PREFIX.concat(figmaUserId), userDataDto, mmSiteUrl, botAccessToken);
+        userData.ifPresent(currentData -> {
+                    try {
+                        currentData.setClientSecret(dataEncryptionService.encrypt(currentData.getClientSecret()));
+                        currentData.setRefreshToken(dataEncryptionService.encrypt(currentData.getRefreshToken()));
+                        currentData.setConnected(isConnected);
+                        kvService.put(USER_KV_PREFIX.concat(figmaUserId), currentData, mmSiteUrl, botAccessToken);
+                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                        log.error(e.getMessage());
+                    }
                 }
         );
     }
