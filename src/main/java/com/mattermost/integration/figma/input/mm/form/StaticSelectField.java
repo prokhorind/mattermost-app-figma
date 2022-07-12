@@ -11,5 +11,4 @@ import java.util.List;
 public class StaticSelectField extends Field {
     private List<Option> options;
     private boolean refresh;
-    private String source;
 }
