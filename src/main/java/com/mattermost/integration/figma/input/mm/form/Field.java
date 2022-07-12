@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 public class Field {
     private String name;
     private String type;
-    private String value;
+    private Value value;
     @JsonProperty("is_required")
     private boolean isRequired;
     @JsonProperty("modal_label")
