@@ -75,7 +75,9 @@ public class ProjectFormReplyCreator {
         Value.ValueBuilder projectValueBuilder = Value.builder();
         projectValueBuilder.label(projectName);
         projectValueBuilder.value(projectId);
-        form.getForm().getFields().get(0).setValue(projectValueBuilder.build());
+        StaticSelectField projectField = (StaticSelectField) form.getForm().getFields().get(0);
+        projectField.setObjectValue(projectValueBuilder.build());
+        form.getForm().getFields().set(0, projectField);
         StaticSelectField.StaticSelectFieldBuilder<?, ?> builder = StaticSelectField.builder();
         Value.ValueBuilder fileValueBuilder = Value.builder();
         fileValueBuilder.value("all_files");
@@ -85,7 +87,7 @@ public class ProjectFormReplyCreator {
         builder.isRequired(true);
         builder.label("File");
         builder.options(createFileOptions(files));
-        builder.value(fileValueBuilder.build());
+        builder.objectValue(fileValueBuilder.build());
         form.getForm().getFields().add(builder.build());
     }
 

@@ -90,6 +90,7 @@ public class DMFormMessageCreator {
         TextField.TextFieldBuilder<?, ?> builder = TextField.builder();
         builder.name(name);
         builder.label(label);
+        builder.value(value);
         builder.type(FIELD_TYPE);
         builder.isRequired(true);
         return builder.build();

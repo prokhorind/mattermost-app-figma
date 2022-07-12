@@ -108,7 +108,8 @@ public class SubscribeController {
             userDataKVService.saveUserData(request);
             subscribeService.subscribeToProject(request);
             String projectName = request.getValues().getProject().getLabel();
-            return String.format("{\"text\":\"You’ve successfully subscribed [channel] to %s notifications\"}", projectName);
+            return String.format("{\"text\":\"You’ve successfully subscribed %s to %s notifications\"}",
+                    request.getContext().getChannel().getDisplayName(), projectName);
         }
 
         return sendProjectFile(request, teamId);
@@ -150,7 +151,8 @@ public class SubscribeController {
         userDataKVService.saveUserData(request);
         subscribeService.subscribeToFile(request);
         String fileName = request.getValues().getFile().getLabel();
-        return String.format("{\"text\":\"You’ve successfully subscribed [channel] to %s notifications\"}", fileName);
+        return String.format("{\"text\":\"You’ve successfully subscribed %s to %s notifications\"}",
+                request.getContext().getChannel().getDisplayName(), fileName);
     }
 
     @PostMapping("/subscriptions")
