@@ -157,10 +157,11 @@ class SubscribeControllerTest {
         when(values.getFile()).thenReturn(file);
         when(values.getProject()).thenReturn(field);
         when(field.getLabel()).thenReturn("test");
+        when(field.getValue()).thenReturn("test");
 
         String actualResponse = (String) testedInstance.sendProjectFiles(inputPayload, TEAM_ID);
 
-        assertEquals("{\"text\":\"You’ve successfully subscribed [channel] to test notifications\"}", actualResponse);
+        assertEquals("{\"text\":\"You’ve successfully subscribed null to test notifications\"}", actualResponse);
     }
 
     @Test
@@ -189,7 +190,7 @@ class SubscribeControllerTest {
 
         String actual = (String) testedInstance.sendProjectFiles(inputPayload, TEAM_ID);
 
-        assertEquals("{\"text\":\"You’ve successfully subscribed [channel] to test notifications\"}", actual);
+        assertEquals("{\"text\":\"You’ve successfully subscribed null to test notifications\"}", actual);
     }
 
     @Test
