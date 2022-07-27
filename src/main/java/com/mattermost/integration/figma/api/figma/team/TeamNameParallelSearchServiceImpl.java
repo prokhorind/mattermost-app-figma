@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +32,8 @@ public class TeamNameParallelSearchServiceImpl implements TeamNameParallelSearch
     @Autowired
     private OAuthService oAuthService;
 
+    private final static int DEFAULT_THREAD_QUANTITY = 4;
+
     public List<TeamNameDto> doTeamNameSearchTask(List<TeamNameDto> teamNameDtos, String userId,
                                                   String mmSiteUrl, String botAccessToken) {
         Optional<UserDataDto> userDataOptional = userDataKVService.getUserData(userId, mmSiteUrl, botAccessToken);
@@ -40,9 +44,17 @@ public class TeamNameParallelSearchServiceImpl implements TeamNameParallelSearch
         UserDataDto userData = userDataOptional.get();
         String accessToken = oAuthService.refreshToken(userData.getClientId(), userData.getClientSecret(),
                 userData.getRefreshToken()).getAccessToken();
-        return teamNameDtos.parallelStream().peek(dto -> {
-            Optional<TeamProjectDTO> projectsByTeamId = figmaProjectService.getProjectsByTeamIdWithCustomRestTemplate(dto.getTeamId(), accessToken, restTemplate);
-            projectsByTeamId.ifPresent(teamProjectDTO -> dto.setTeamName(teamProjectDTO.getName()));
-        }).filter(dto -> Objects.nonNull(dto.getTeamName())).collect(Collectors.toList());
+        ForkJoinPool customThreadPool = new ForkJoinPool(DEFAULT_THREAD_QUANTITY);
+        try {
+            return customThreadPool.submit(() -> teamNameDtos.parallelStream().peek(dto -> {
+                Optional<TeamProjectDTO> projectsByTeamId = figmaProjectService.getProjectsByTeamIdWithCustomRestTemplate(dto.getTeamId(), accessToken, restTemplate);
+                projectsByTeamId.ifPresent(teamProjectDTO -> dto.setTeamName(teamProjectDTO.getName()));
+            }).filter(dto -> Objects.nonNull(dto.getTeamName())).collect(Collectors.toList())).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            customThreadPool.shutdown();
+        }
+        return new ArrayList<>();
     }
 }
