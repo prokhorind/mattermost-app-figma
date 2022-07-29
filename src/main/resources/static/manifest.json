@@ -38,7 +38,7 @@
     }
   },
   "http": {
-    "root_url": "https://ourtopappurl.ngrok.io"
+    "root_url": "http://localhost:8080"
   },
   "aws_lambda": {
     "functions": [
