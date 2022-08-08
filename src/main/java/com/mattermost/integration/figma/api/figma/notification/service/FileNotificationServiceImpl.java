@@ -147,7 +147,6 @@ public class FileNotificationServiceImpl implements FileNotificationService {
         if (!mentions.isEmpty()) {
             mentions.stream().distinct().map((mention -> userDataKVService.getUserData(mention.getId(), mattermostSiteUrl, botAccessToken)))
                     .filter(Optional::isPresent).map(Optional::get)
-                    .distinct()
                     .filter(UserDataDto::isConnected)
                     .forEach(userData -> dmMessageSenderService.sendMessageToSpecificReceiver(context, userData, figmaWebhookResponse, MENTIONED_NOTIFICATION_ROOT));
         }
