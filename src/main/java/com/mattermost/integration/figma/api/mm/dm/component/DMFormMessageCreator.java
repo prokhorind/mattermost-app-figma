@@ -50,7 +50,7 @@ public class DMFormMessageCreator {
 
     private AppBinding prepareSingleAppBinding(DMMessageWithPropsFields fields) {
         AppBinding appBinding = new AppBinding();
-        appBinding.setAppId(fields.getAppId());
+        appBinding.setAppId("figma");
         appBinding.setLabel(fields.getLabel());
         appBinding.setDescription(fields.getDescription());
         appBinding.setBindings(Collections.singletonList(prepareSingleBinding(fields)));
