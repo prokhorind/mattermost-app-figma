@@ -59,7 +59,7 @@ public class TeamNameFormCreator {
 
     private Submit createProjectFilesSubmit() {
         Submit submit = createSubmit();
-        submit.setExpand(null);
+        submit.setExpand(prepareExpand());
         submit.setPath("/team/refresh");
         return submit;
     }
