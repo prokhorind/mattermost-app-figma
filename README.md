@@ -44,6 +44,6 @@ https://developers.mattermost.com/integrate/apps/deploy/deploy-aws/
 
 ####Lambda configuration
 
-Increase RAM memory and timeout ( Lambda -> Configuration -> General Configuration) 
+Increase RAM and timeout ( Lambda -> Configuration -> General Configuration) 
 
 Add environmental variable ENCRYPTION_KEY for data encryption in KV ( Lambda-> Configuration -> Environment variables)
