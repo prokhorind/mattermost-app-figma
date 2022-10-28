@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -95,11 +96,17 @@ class SubscribeControllerTest {
     @Mock
     private ObjectMapper mapper;
 
+    @Mock
+    private MessageSource messageSource;
+
+    @Mock
+    private ActingUser actingUser;
+
     private final String payload = "";
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        when(mapper.readValue(payload,InputPayload.class)).thenReturn(inputPayload);
+        when(mapper.readValue(payload, InputPayload.class)).thenReturn(inputPayload);
         when(inputPayload.getContext()).thenReturn(context);
         when(inputPayload.getValues()).thenReturn(values);
         when(context.getOauth2()).thenReturn(oAuth2);
@@ -128,7 +135,8 @@ class SubscribeControllerTest {
     @Test
     public void shouldThrowMMSubscriptionFromDMChannelExceptionWhenChannelIsDM() {
         when(channel.getType()).thenReturn(DM_CHANNEL);
-
+        when(context.getActingUser()).thenReturn(actingUser);
+        when(actingUser.getLocale()).thenReturn("en");
         assertThrows(MMSubscriptionFromDMChannelException.class, () -> testedInstance.subscribe(inputPayload));
     }
 
@@ -146,7 +154,7 @@ class SubscribeControllerTest {
 
         testedInstance.subscribe(inputPayload);
 
-        verify(userService).addUserToChannel(any(),any(),any(),any());
+        verify(userService).addUserToChannel(any(), any(), any(), any());
     }
 
     @Test

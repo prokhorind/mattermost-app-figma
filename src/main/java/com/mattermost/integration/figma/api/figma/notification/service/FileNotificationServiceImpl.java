@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -72,6 +73,8 @@ public class FileNotificationServiceImpl implements FileNotificationService {
     private FigmaProjectService figmaProjectService;
     @Autowired
     private FigmaFileService figmaFileService;
+    @Autowired
+    private MessageSource messageSource;
 
 
     public void sendFileNotificationMessageToMMSubscribedChannels(FileCommentWebhookResponse fileCommentWebhookResponse) {
@@ -101,7 +104,10 @@ public class FileNotificationServiceImpl implements FileNotificationService {
             return;
         }
 
-        throw new FigmaCannotCreateWebhookException();
+        Locale locale = Locale.forLanguageTag(inputPayload.getContext().getActingUser().getLocale());
+        String message = messageSource.getMessage("figma.webhook.creation.exception", null, locale);
+
+        throw new FigmaCannotCreateWebhookException(message);
     }
 
     private Optional tryToCreateWebhook(InputPayload payload, String accessToken, String teamId) {

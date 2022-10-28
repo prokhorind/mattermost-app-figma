@@ -2,7 +2,6 @@ package com.mattermost.integration.figma.api.mm.dm.component;
 
 import com.mattermost.integration.figma.api.mm.dm.dto.DMMessageWithPropsFields;
 import com.mattermost.integration.figma.api.mm.dm.dto.DMMessageWithPropsPayload;
-import com.mattermost.integration.figma.input.mm.binding.Expand;
 import com.mattermost.integration.figma.input.mm.form.*;
 import org.springframework.stereotype.Component;
 
