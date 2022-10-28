@@ -32,6 +32,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -114,6 +115,9 @@ class SubscribeControllerTest {
 
         when(context.getChannel()).thenReturn(channel);
 
+        when(context.getActingUser()).thenReturn(actingUser);
+        when(actingUser.getLocale()).thenReturn("en");
+
     }
 
     @Test
@@ -173,10 +177,11 @@ class SubscribeControllerTest {
         when(values.getProject()).thenReturn(field);
         when(field.getLabel()).thenReturn("test");
         when(field.getValue()).thenReturn("test");
+        when(messageSource.getMessage(anyString(), any(), any())).thenReturn("You have successfully subscribed %s to %s notifications");
 
         String actualResponse = (String) testedInstance.sendProjectFiles(payload, TEAM_ID);
 
-        assertEquals("{\"text\":\"You’ve successfully subscribed null to test notifications\"}", actualResponse);
+        assertEquals("{\"text\":\"You have successfully subscribed null to test notifications\"}", actualResponse);
     }
 
     @Test
@@ -202,10 +207,11 @@ class SubscribeControllerTest {
         when(file.getValue()).thenReturn(VALUE);
         when(values.getProject()).thenReturn(field);
         when(file.getLabel()).thenReturn("test");
+        when(messageSource.getMessage(any(), any(), any())).thenReturn("You have successfully subscribed %s to %s notifications");
 
         String actual = (String) testedInstance.sendProjectFiles(payload, TEAM_ID);
 
-        assertEquals("{\"text\":\"You’ve successfully subscribed null to test notifications\"}", actual);
+        assertEquals("{\"text\":\"You have successfully subscribed null to test notifications\"}", actual);
     }
 
     @Test
@@ -216,6 +222,7 @@ class SubscribeControllerTest {
         when(subscribeService.getFilesByChannelId(inputPayload)).thenReturn(Collections.singleton(fileInfo));
         when(fileInfo.getFileId()).thenReturn(VALUE);
         when(fileInfo.getFileName()).thenReturn(NAME);
+        when(messageSource.getMessage(any(), any(), any())).thenReturn("This channel is already subscribed to updates about %s");
 
         String actual = (String) testedInstance.sendProjectFiles(payload, TEAM_ID);
 
