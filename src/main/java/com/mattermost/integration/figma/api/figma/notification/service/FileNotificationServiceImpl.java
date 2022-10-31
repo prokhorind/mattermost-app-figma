@@ -11,11 +11,13 @@ import com.mattermost.integration.figma.api.figma.webhook.service.FigmaWebhookSe
 import com.mattermost.integration.figma.api.mm.dm.service.DMMessageSenderService;
 import com.mattermost.integration.figma.api.mm.kv.KVService;
 import com.mattermost.integration.figma.api.mm.kv.UserDataKVService;
+import com.mattermost.integration.figma.api.mm.user.MMUserService;
 import com.mattermost.integration.figma.config.exception.exceptions.figma.FigmaCannotCreateWebhookException;
 import com.mattermost.integration.figma.input.figma.notification.FigmaWebhookResponse;
 import com.mattermost.integration.figma.input.figma.notification.FileCommentNotificationRequest;
 import com.mattermost.integration.figma.input.figma.notification.FileCommentWebhookResponse;
 import com.mattermost.integration.figma.input.figma.notification.Mention;
+import com.mattermost.integration.figma.input.mm.user.MMUser;
 import com.mattermost.integration.figma.input.oauth.Context;
 import com.mattermost.integration.figma.input.oauth.InputPayload;
 import com.mattermost.integration.figma.security.dto.FigmaOAuthRefreshTokenResponseDTO;
@@ -50,7 +52,7 @@ public class FileNotificationServiceImpl implements FileNotificationService {
     private static final String FILE_COMMENT_EVENT_TYPE = "FILE_COMMENT";
     private static final String REDIRECT_URL = "%s%s";
     private static final String FILE_COMMENT_URL = "/webhook/comment";
-    private static final String MENTIONED_NOTIFICATION_ROOT = "commented on";
+    private static final String MENTIONED_NOTIFICATION_ROOT = "figma.webhook.reply.notification.mentioned.notification.root.label";
 
     @Autowired
     @Qualifier("figmaRestTemplate")
@@ -75,6 +77,8 @@ public class FileNotificationServiceImpl implements FileNotificationService {
     private FigmaFileService figmaFileService;
     @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private MMUserService mmUserService;
 
 
     public void sendFileNotificationMessageToMMSubscribedChannels(FileCommentWebhookResponse fileCommentWebhookResponse) {
@@ -157,8 +161,15 @@ public class FileNotificationServiceImpl implements FileNotificationService {
             mentions.stream().distinct().map((mention -> userDataKVService.getUserData(mention.getId(), mattermostSiteUrl, botAccessToken)))
                     .filter(Optional::isPresent).map(Optional::get)
                     .filter(UserDataDto::isConnected)
-                    .forEach(userData -> dmMessageSenderService.sendMessageToSpecificReceiver(context, userData, figmaWebhookResponse, MENTIONED_NOTIFICATION_ROOT));
+                    .forEach(userData -> sendMessageToSpecificReceiver(figmaWebhookResponse, context, userData));
         }
+    }
+
+    private void sendMessageToSpecificReceiver(FigmaWebhookResponse figmaWebhookResponse, Context context, UserDataDto userData) {
+        MMUser user = mmUserService.getUserById(userData.getMmUserId(), context.getMattermostSiteUrl(), context.getBotAccessToken());
+        Locale locale = Locale.forLanguageTag(user.getLocale());
+        String message = messageSource.getMessage(MENTIONED_NOTIFICATION_ROOT, null, locale);
+        dmMessageSenderService.sendMessageToSpecificReceiver(context, userData, figmaWebhookResponse, message);
     }
 
     private String getToken(InputPayload inputPayload) {
