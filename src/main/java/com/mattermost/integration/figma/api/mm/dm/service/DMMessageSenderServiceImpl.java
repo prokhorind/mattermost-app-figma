@@ -155,8 +155,8 @@ public class DMMessageSenderServiceImpl implements DMMessageSenderService {
             return;
         }
 
-        DMMessageWithPropsPayload dmMessageWithPropsPayload = formMessageCreator.createDMMessageWithPropsPayload(messageWithPropsFields.get(), webhookResponse.getContext().getBotAccessToken(),
-                webhookResponse.getContext().getMattermostSiteUrl());
+        DMMessageWithPropsPayload dmMessageWithPropsPayload = formMessageCreator.createMessageWithPropsPayload(messageWithPropsFields.get(), webhookResponse.getContext().getBotAccessToken(),
+                webhookResponse.getContext().getMattermostSiteUrl(), Locale.US);
 
         messageService.sendDMMessage(dmMessageWithPropsPayload);
 
@@ -186,8 +186,13 @@ public class DMMessageSenderServiceImpl implements DMMessageSenderService {
         if (messageWithPropsFields.isEmpty()) {
             return;
         }
-        messageService.sendDMMessage(formMessageCreator.createDMMessageWithPropsPayload(messageWithPropsFields.get(), context.getBotAccessToken(),
-                context.getMattermostSiteUrl()));
+        String botAccessToken = context.getBotAccessToken();
+        String mattermostSiteUrl = context.getMattermostSiteUrl();
+        MMUser user = mmUserService.getUserById(specificUserData.getMmUserId(), mattermostSiteUrl, botAccessToken);
+
+        Locale locale = Locale.forLanguageTag(user.getLocale());
+        messageService.sendDMMessage(formMessageCreator.createMessageWithPropsPayload(messageWithPropsFields.get(), botAccessToken,
+                mattermostSiteUrl, locale));
     }
 
     private String getAccessTokenByWebhookId(String webhookId, String mmSiteUrl, String botAccessToken) {
