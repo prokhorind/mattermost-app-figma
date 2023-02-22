@@ -2,6 +2,11 @@
 
 A Figma app for Mattermost.
 
+###Notes
+
+1. Currently not working due to Figma API problems with webhooks. FILE_COMMENT webhook is not working. Ticket for Figma team is created. Investigation is in progress;
+2. Due to API call limit notify file owner logic and preselect team id during subscribe logic should be removed; 
+
 ### First steps 
 
 #### Setting up 
@@ -47,8 +52,3 @@ https://developers.mattermost.com/integrate/apps/deploy/deploy-aws/
 Increase RAM and timeout ( Lambda -> Configuration -> General Configuration) 
 
 Add environmental variable ENCRYPTION_KEY for data encryption in KV ( Lambda-> Configuration -> Environment variables)
-
-###Notes
-
-1. Currently not working due to Figma API problems with webhooks;
-2. Due to API call limit notify file owner logic and preselect team id during subscribe logic should be removed; 
