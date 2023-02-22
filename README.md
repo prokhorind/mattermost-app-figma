@@ -42,8 +42,13 @@ https://developers.mattermost.com/integrate/apps/deploy/deploy-aws/
 
 `go run ./cmd/appsctl aws deploy -v figma-aws-bundle.zip`
 
-####Lambda configuration
+###Lambda configuration
 
 Increase RAM and timeout ( Lambda -> Configuration -> General Configuration) 
 
 Add environmental variable ENCRYPTION_KEY for data encryption in KV ( Lambda-> Configuration -> Environment variables)
+
+###Notes
+
+1. Currently not working due to Figma API problems with webhooks;
+2. Due to API call limit notify file owner logic and preselect team id during subscribe logic should be removed; 
